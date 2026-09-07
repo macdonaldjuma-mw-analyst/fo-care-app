@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resolver Dashboard | FO Care</title>
+  
+  <!-- Google Fonts: Sora, IBM Plex Sans, IBM Plex Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS (via CDN for development, use CLI build for production) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tailwind Configuration for Fonts and Custom Colors -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sora: ['Sora', 'sans-serif'],
+            sans: ['"IBM Plex Sans"', 'sans-serif'],
+            mono: ['"IBM Plex Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              dark: '#064e3b', // Tailwind emerald-900
+              primary: '#059669', // Tailwind emerald-600
+              light: '#d1fae5', // Tailwind emerald-100
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Minimal custom CSS. Tailwind handles 99% of styling. */
+    body { font-family: 'IBM Plex Sans', sans-serif; background-color: #f3f4f6; }
+    h1, h2, h3 { font-family: 'Sora', sans-serif; }
+    .ticket-code { font-family: 'IBM Plex Mono', monospace; }
+  </style>
+</head>
+<body class="text-gray-800 antialiased h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-brand-dark text-white p-4 shadow-md flex justify-between items-center shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-brand-primary rounded flex items-center justify-center font-sora font-bold">FO</div>
+      <h1 class="text-xl font-sora font-semibold tracking-wide">Resolver Desk</h1>
+    </div>
+    <div class="text-sm font-medium">Resolver: <span id="current-user" class="font-bold text-brand-light">Loading...</span></div>
+  </header>
+
+  <!-- Main Layout -->
+  <main class="flex-1 flex overflow-hidden">
+    
+    <!-- Sidebar / Filters -->
+    <aside class="w-64 bg-white border-r border-gray-200 p-4 flex flex-col gap-4 overflow-y-auto hidden md:flex shrink-0">
+      <h2 class="font-sora font-semibold text-gray-600 uppercase text-xs tracking-wider">Queue Filters</h2>
+      <div class="flex flex-col gap-2" id="status-filters">
+        <button class="filter-btn active text-left px-3 py-2 rounded bg-brand-light text-brand-dark font-medium text-sm transition-colors" data-status="ALL">All Tickets</button>
+        <button class="filter-btn text-left px-3 py-2 rounded hover:bg-gray-100 text-gray-700 font-medium text-sm transition-colors" data-status="OPEN">Open</button>
+        <button class="filter-btn text-left px-3 py-2 rounded hover:bg-gray-100 text-gray-700 font-medium text-sm transition-colors" data-status="IN_PROGRESS">In Progress</button>
+      </div>
+      
+      <div class="mt-4">
+        <h2 class="font-sora font-semibold text-gray-600 uppercase text-xs tracking-wider mb-2">Metrics</h2>
+        <div class="bg-red-50 text-red-700 border border-red-200 rounded p-3 text-sm">
+          <span class="font-bold block mb-1">SLA Breached</span>
+          <span class="text-2xl font-mono font-bold" id="breach-count">0</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Ticket Queue List -->
+    <section class="flex-1 p-6 overflow-y-auto bg-gray-50 relative">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-sora font-bold text-gray-800" id="queue-title">Active Queue</h2>
+        <button id="refresh-btn" class="bg-white border border-gray-300 shadow-sm px-3 py-1.5 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          Refresh
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading-indicator" class="hidden flex justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
+      </div>
+
+      <!-- Table Container -->
+      <div class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-gray-100 border-b border-gray-200 text-gray-600 font-sora text-sm">
+              <th class="p-4 font-semibold">Ticket ID</th>
+              <th class="p-4 font-semibold">Category</th>
+              <th class="p-4 font-semibold">Status</th>
+              <th class="p-4 font-semibold">SLA Due</th>
+              <th class="p-4 font-semibold">District</th>
+            </tr>
+          </thead>
+          <tbody id="ticket-list" class="divide-y divide-gray-100 text-sm">
+            <!-- Tickets injected here via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Ticket Detail Drawer (Slide-over) -->
+  <div id="ticket-drawer" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-50 hidden transition-opacity">
+    <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-xl flex flex-col transform translate-x-full transition-transform duration-300" id="drawer-panel">
+      <!-- Drawer Content injected here -->
+      <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+        <h2 class="font-sora font-bold text-lg ticket-code" id="drawer-title">TKT-0000</h2>
+        <button id="close-drawer" class="text-gray-400 hover:text-gray-800 p-1">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div id="drawer-body" class="flex-1 overflow-y-auto p-6 space-y-6">
+        <!-- Content loaded dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
