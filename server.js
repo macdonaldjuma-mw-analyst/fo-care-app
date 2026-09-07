@@ -21,10 +21,10 @@ async function startServer() {
   await server.start();
   server.applyMiddleware({ app, path: '/graphql' });
 
-  const PORT = process.env.PORT || 8080;
-  app.listen(PORT, () => {
-    console.log(`🚀 Apollo GraphQL server running on port ${PORT}/graphql`);
-  });
+  const PORT = parseInt(process.env.PORT || '8080', 10);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Apollo GraphQL server running on port ${PORT}/graphql`);
+});
 }
 
 startServer().catch((err) => {
