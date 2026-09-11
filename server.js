@@ -1,5 +1,6 @@
 const express = require('express');
 const adminActions = require('./actions/admin');
+const ticketActions = require('./actions/tickets');
 
 const app = express();
 app.use(express.json());
@@ -21,6 +22,11 @@ const ACTION_HANDLERS = {
   admin_list_admins: adminActions.adminListAdmins,
   admin_add_admin: adminActions.adminAddAdmin,
   admin_update_admin: adminActions.adminUpdateAdmin,
+  get_tickets: ticketActions.getTickets,
+  get_ticket_detail: ticketActions.getTicketDetail,
+  add_comment: ticketActions.addComment,
+  update_status: ticketActions.updateStatus,
+  get_my_resolvers: ticketActions.getMyResolvers,
 };
 
 app.post('/backoffice', async (req, res) => {

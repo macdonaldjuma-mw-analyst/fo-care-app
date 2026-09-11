@@ -1,81 +1,102 @@
 const { gql } = require('apollo-server-express');
 
-const typeDefs = gql`
-  enum TicketStatus {
-    OPEN
-    IN_PROGRESS
-    RESOLVED_PENDING_CONFIRMATION
-    CLOSED
-    REOPENED
-  }
+// NOTE: statusCode / newStatus are plain Strings, not an enum. The previous
+// version hardcoded a TicketStatus enum (OPEN, IN_PROGRESS, ...) but that was
+// never validated against the real `ticket_statuses` table (columns: code,
+// label, sort_order, is_terminal). Share the actual rows from that table if
+// you want this locked back down to a real enum + validated transitions.
 
+const typeDefs = gql`
   type Ticket {
     id: ID!
-    ticketCode: String!
-    title: String!
-    description: String
-    statusCode: TicketStatus!
-    categoryId: ID!
-    categoryName: String
-    podDistrict: String
-    slaHours: Int
+    ticketNumber: String!
+    categoryId: Int!
+    categoryLabel: String
+    statusCode: String!
+    foEmail: String!
+    foName: String
+    siteId: String!
+    siteName: String
+    farmerAccount: String
+    farmerName: String
+    description: String!
+    customFields: String
     slaDueAt: String
     isSlaBreached: Boolean
-    assignedResolverId: ID
+    resolverName: String
+    assignedResolverEmail: String
+    resolvedAt: String
+    confirmedAt: String
+    closedAt: String
+    closedReason: String
+    sourceSystem: String!
+    callerPhoneNumber: String
+    loggedByAgentEmail: String
+    relatedTicketId: ID
     createdAt: String!
     updatedAt: String!
-    categoryFields: [CategoryFieldValue]
     comments: [TicketComment]
     history: [StatusHistory]
-  }
-
-  type CategoryFieldValue {
-    fieldKey: String!
-    fieldLabel: String!
-    value: String
+    attachments: [TicketAttachment]
   }
 
   type TicketComment {
     id: ID!
-    userId: ID!
-    comment: String!
-    isInternal: Boolean!
+    ticketId: ID!
+    authorRole: String!
+    authorName: String
+    authorEmail: String
+    commentText: String!
     createdAt: String!
   }
 
   type StatusHistory {
     id: ID!
+    ticketId: ID!
     oldStatus: String
     newStatus: String!
-    changedBy: ID!
+    changedByRole: String
+    changedBy: String
+    note: String
     changedAt: String!
   }
 
+  type TicketAttachment {
+    id: ID!
+    ticketId: ID!
+    fileUrl: String!
+    fileName: String
+    uploadedByRole: String
+    uploadedAt: String!
+  }
+
   type Query {
-    resolverQueue(resolverId: ID!, status: TicketStatus): [Ticket!]!
+    # resolverEmail — resolver_category_access is keyed by email, not a numeric ID
+    resolverQueue(resolverEmail: String!, status: String): [Ticket!]!
     ticketDetail(ticketId: ID!): Ticket
   }
 
   type Mutation {
     updateTicketStatus(
       ticketId: ID!
-      resolverId: ID!
-      newStatus: TicketStatus!
-      comment: String
+      resolverEmail: String!
+      newStatus: String!
+      note: String
     ): Ticket!
 
     reassignTicket(
       ticketId: ID!
-      resolverId: ID!
-      targetResolverId: ID!
+      resolverEmail: String!
+      targetResolverEmail: String!
       reason: String
     ): Ticket!
 
     addComment(
       ticketId: ID!
-      userId: ID!
-      comment: String!
-      isInternal: Boolean!
+      authorRole: String!
+      authorName: String
+      authorEmail: String
+      commentText: String!
     ): TicketComment!
   }
 `;
