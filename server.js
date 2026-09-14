@@ -1,6 +1,10 @@
 const express = require('express');
 const adminActions = require('./actions/admin');
 const ticketActions = require('./actions/tickets');
+const profileActions = require('./actions/profile');
+const managerActions = require('./actions/manager');
+const adminConfigActions = require('./actions/adminConfig');
+const hotlineActions = require('./actions/hotline');
 
 const app = express();
 app.use(express.json());
@@ -27,6 +31,25 @@ const ACTION_HANDLERS = {
   add_comment: ticketActions.addComment,
   update_status: ticketActions.updateStatus,
   get_my_resolvers: ticketActions.getMyResolvers,
+  get_user_profile: profileActions.getUserProfile,
+  get_dashboard_summary: managerActions.getDashboardSummary,
+  get_sla_breaches: managerActions.getSlaBreaches,
+  get_resolver_performance: managerActions.getResolverPerformance,
+  export_ticket_history: managerActions.exportTicketHistory,
+  admin_list_categories: adminConfigActions.adminListCategories,
+  admin_create_category: adminConfigActions.adminCreateCategory,
+  admin_update_category: adminConfigActions.adminUpdateCategory,
+  admin_list_category_fields: adminConfigActions.adminListCategoryFields,
+  admin_create_category_field: adminConfigActions.adminCreateCategoryField,
+  admin_update_category_field: adminConfigActions.adminUpdateCategoryField,
+  admin_delete_category_field: adminConfigActions.adminDeleteCategoryField,
+  admin_list_resolvers: adminConfigActions.adminListResolvers,
+  admin_set_resolver_categories: adminConfigActions.adminSetResolverCategories,
+  admin_get_audit_log: adminConfigActions.adminGetAuditLog,
+  get_ticket_categories: hotlineActions.getTicketCategories,
+  get_pod_structure: hotlineActions.getPodStructure,
+  search_fo_tickets: hotlineActions.searchFoTickets,
+  create_hotline_ticket: hotlineActions.createHotlineTicket,
 };
 
 app.post('/backoffice', async (req, res) => {

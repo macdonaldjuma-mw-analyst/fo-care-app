@@ -7,7 +7,7 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME || 'fo_care_app',
   port: parseInt(process.env.DB_PORT || '5432', 10),
-  max: 20,
+  max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
   // External host requires SSL. rejectUnauthorized:false accepts self-signed certs,
