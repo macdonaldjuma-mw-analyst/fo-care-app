@@ -16,7 +16,8 @@ const VALID_TRANSITIONS = {
  * Lists tickets visible to a resolver (scoped to their category access),
  * with the same optional filters as the n8n version: status, overdue-only,
  * "my tickets only", category, and free-text search across ticket number /
- * farmer name / farmer account.
+ * farmer name / farmer account. Now also returns source_system, so the UI
+ * can badge hotline/MOP-originated tickets in the list view.
  */
 async function getTickets(payload) {
   const resolverEmail = payload.email;
@@ -31,6 +32,7 @@ async function getTickets(payload) {
       t.id, t.ticket_number, c.label AS category_label, t.status_code, s.label AS status_label,
       t.description, t.farmer_account, t.farmer_name, t.site_id, t.site_name,
       t.fo_email, t.assigned_resolver_email, t.sla_due_at, t.created_at, t.updated_at,
+      t.source_system,
       (t.sla_due_at IS NOT NULL AND now() > t.sla_due_at AND t.status_code IN ('OPEN', 'IN_PROGRESS', 'REOPENED')) AS is_overdue
     FROM ${SCHEMA}.tickets t
     JOIN ${SCHEMA}.ticket_categories c ON c.id = t.category_id
@@ -74,6 +76,7 @@ async function getTickets(payload) {
     sla_due_at: row.sla_due_at ?? null,
     created_at: row.created_at ?? null,
     updated_at: row.updated_at ?? null,
+    source_system: row.source_system ?? null,
     is_overdue: Boolean(row.is_overdue),
   }));
 
@@ -85,6 +88,10 @@ async function getTickets(payload) {
  * json_agg in the same query, exactly as n8n does it. Access is scoped to
  * the caller's category access — a resolver with no access to this
  * ticket's category gets "not found", same as n8n (never a bare 403).
+ *
+ * Now also returns source_system, caller_phone_number, and
+ * logged_by_agent_email (populated for hotline-originated tickets), plus
+ * related_ticket_id/related_ticket_number for follow-up-linked tickets.
  */
 async function getTicketDetail(payload) {
   const { rows } = await db.query(
@@ -94,6 +101,8 @@ async function getTicketDetail(payload) {
       t.description, t.custom_fields, t.sla_due_at, t.assigned_resolver_email,
       t.resolver_name, t.resolved_at, t.confirmed_at, t.closed_at, t.closed_reason,
       t.created_at, t.updated_at,
+      t.source_system, t.caller_phone_number, t.logged_by_agent_email, t.related_ticket_id,
+      (SELECT ticket_number FROM ${SCHEMA}.tickets rt WHERE rt.id = t.related_ticket_id) AS related_ticket_number,
       (t.sla_due_at IS NOT NULL AND now() > t.sla_due_at AND t.status_code IN ('OPEN', 'IN_PROGRESS', 'REOPENED')) AS is_overdue,
       COALESCE((SELECT json_agg(json_build_object('file_url', a.file_url, 'file_name', a.file_name,
           'uploaded_by_role', a.uploaded_by_role, 'uploaded_at', a.uploaded_at) ORDER BY a.uploaded_at)
@@ -154,6 +163,11 @@ async function getTicketDetail(payload) {
       closed_reason: row.closed_reason ?? null,
       created_at: row.created_at ?? null,
       updated_at: row.updated_at ?? null,
+      source_system: row.source_system ?? null,
+      caller_phone_number: row.caller_phone_number ?? null,
+      logged_by_agent_email: row.logged_by_agent_email ?? null,
+      related_ticket_id: row.related_ticket_id != null ? Number(row.related_ticket_id) : null,
+      related_ticket_number: row.related_ticket_number ?? null,
       is_overdue: Boolean(row.is_overdue),
       attachments: Array.isArray(row.attachments) ? row.attachments : [],
       comments: Array.isArray(row.comments) ? row.comments : [],
