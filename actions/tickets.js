@@ -16,14 +16,30 @@ const VALID_TRANSITIONS = {
  * Lists tickets visible to a resolver (scoped to their category access),
  * with the same optional filters as the n8n version: status, overdue-only,
  * "my tickets only", category, and free-text search across ticket number /
- * farmer name / farmer account. Now also returns source_system, so the UI
- * can badge hotline/MOP-originated tickets in the list view.
+ * farmer name / farmer account.
+ *
+ * The frontend sends these filter names:
+ *   status_code
+ *   is_overdue
+ *   assigned_to_me
+ *   category_id
+ *   search
+ *
+ * These are mapped below to the variables used by the SQL query.
+ *
+ * Now also returns source_system, so the UI can badge hotline/MOP-originated
+ * tickets in the list view.
  */
 async function getTickets(payload) {
+  console.log('GET_TICKETS PAYLOAD:', JSON.stringify(payload));
+
   const resolverEmail = payload.email;
-  const status = payload.status ?? null;
-  const overdueOnly = payload.overdue_only ?? null;
-  const myTicketsOnly = payload.my_tickets_only ?? null;
+
+  // Map the filter names sent by the frontend to the variables
+  // used by the database query.
+  const status = payload.status_code ?? null;
+  const overdueOnly = payload.is_overdue ?? null;
+  const myTicketsOnly = payload.assigned_to_me ?? null;
   const categoryId = payload.category_id ?? null;
   const search = payload.search ?? null;
 
@@ -130,6 +146,7 @@ async function getTicketDetail(payload) {
 
   const row = rows[0];
   let customFields = row.custom_fields;
+
   if (typeof customFields === 'string') {
     try {
       customFields = JSON.parse(customFields);
@@ -203,6 +220,7 @@ async function addComment(payload) {
   }
 
   const row = rows[0];
+
   return {
     success: true,
     data: {
@@ -248,11 +266,13 @@ async function updateStatus(payload) {
 
   const { old_status: oldStatus, resolver_name: resolverName } = oldStatusRes.rows[0];
   const allowed = VALID_TRANSITIONS[oldStatus] || [];
+
   if (!allowed.includes(newStatus)) {
     return { success: false, error: "That status change isn't allowed." };
   }
 
   const client = await db.pool.connect();
+
   try {
     await client.query('BEGIN');
 
@@ -284,9 +304,13 @@ async function updateStatus(payload) {
     await client.query('COMMIT');
 
     const row = updateRes.rows[0];
+
     return {
       success: true,
-      data: { id: Number(row.id), status_code: row.status_code },
+      data: {
+        id: Number(row.id),
+        status_code: row.status_code,
+      },
     };
   } catch (err) {
     await client.query('ROLLBACK');
@@ -314,7 +338,10 @@ async function getMyResolvers(payload) {
 
   return {
     success: true,
-    data: rows.map((row) => ({ email: row.email ?? null, name: row.name ?? null })),
+    data: rows.map((row) => ({
+      email: row.email ?? null,
+      name: row.name ?? null,
+    })),
   };
 }
 
