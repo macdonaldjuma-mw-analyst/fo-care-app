@@ -12,6 +12,54 @@ var LOGO_FILE_ID = '18f8Hu2MBRhLO1Xyerem4tuJRFyrlJ2ye';
 // TODO: replace with your actual production URL once activated.
 var BACKOFFICE_WEBHOOK_URL = 'https://automations.oneacrefund.org/webhook/fo_care_backoffice';
 
+// Cloud Run replacement backend. Actions listed in CLOUD_RUN_MIGRATED_ACTIONS
+// are sent here instead of n8n; every other action still goes to n8n above.
+// Add an action's name to this list only once it's been built AND verified
+// on Cloud Run — this is the single switch that controls the cutover.
+var CLOUD_RUN_BACKOFFICE_URL = 'https://fo-care-app-229679071591.europe-west1.run.app/backoffice';
+
+var CLOUD_RUN_MIGRATED_ACTIONS = [
+  'admin_list_managers',
+  'admin_add_manager',
+  'admin_update_manager',
+  'admin_add_resolver',
+  'admin_update_resolver',
+  'admin_list_admins',
+  'admin_add_admin',
+  'admin_update_admin',
+  // Resolver ticket actions — reassign_ticket deliberately NOT included yet;
+  // its n8n flow sends a Gmail notification to the newly-assigned resolver
+  // that hasn't been ported. Migrating it now would silently drop that email.
+  'get_tickets',
+  'get_ticket_detail',
+  'add_comment',
+  'update_status',
+  'get_my_resolvers',
+  'get_user_profile',
+  // Manager dashboard
+  'get_dashboard_summary',
+  'get_sla_breaches',
+  'get_resolver_performance',
+  'export_ticket_history',
+  // Admin: categories, category fields, resolver-category assignment, audit log
+  'admin_list_categories',
+  'admin_create_category',
+  'admin_update_category',
+  'admin_list_category_fields',
+  'admin_create_category_field',
+  'admin_update_category_field',
+  'admin_delete_category_field',
+  'admin_list_resolvers',
+  'admin_set_resolver_categories',
+  'admin_get_audit_log',
+  // Hotline / call center
+  'get_ticket_categories',
+  'get_pod_structure',
+  'search_fo_tickets',
+  'create_hotline_ticket',
+  'get_farmer_account'
+];
+
 function doGet(e) {
   var template = HtmlService.createTemplateFromFile('Index');
   return template.evaluate()
@@ -48,7 +96,14 @@ function callBackOfficeWebhook_(action, payload) {
       throw new Error("Resolver_Bo_Hook is not configured in Script Properties.");
     }
 
-    var response = UrlFetchApp.fetch(BACKOFFICE_WEBHOOK_URL, {
+    // The cutover switch: migrated actions go to Cloud Run, everything else
+    // still goes to n8n. Same secret/header for both right now — they'll
+    // diverge once the secret is rotated post-testing.
+    var targetUrl = (CLOUD_RUN_MIGRATED_ACTIONS.indexOf(action) !== -1)
+      ? CLOUD_RUN_BACKOFFICE_URL
+      : BACKOFFICE_WEBHOOK_URL;
+
+    var response = UrlFetchApp.fetch(targetUrl, {
       method: 'post',
       contentType: 'application/json',
       headers: { 'X-FOCare-Backoffice-Secret': secret },
@@ -246,4 +301,13 @@ function searchFoTickets(searchTerm) {
 function createHotlineTicket(ticketData) {
   var payload = Object.assign({ email: getActiveEmail_() }, ticketData);
   return callBackOfficeWebhook_('create_hotline_ticket', payload);
+}
+
+/**
+ * Generic, reusable account lookup — powers Order Adjustment's locked
+ * fields today, and can back any other category field that would benefit
+ * from an account-number lookup later (e.g. Reversal/Refund account fields).
+ */
+function lookupFarmerAccount(accountNumber) {
+  return callBackOfficeWebhook_('get_farmer_account', { email: getActiveEmail_(), account_number: accountNumber });
 }

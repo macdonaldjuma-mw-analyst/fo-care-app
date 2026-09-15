@@ -17,6 +17,7 @@ async function getUserProfile(payload) {
       (SELECT name FROM ${SCHEMA}.resolvers WHERE email = $1 AND is_active = true) AS resolver_name,
       (SELECT name FROM ${SCHEMA}.managers WHERE email = $1 AND is_active = true) AS manager_name,
       (SELECT name FROM ${SCHEMA}.admins WHERE email = $1 AND is_active = true) AS admin_name,
+      (SELECT name FROM ${SCHEMA}.call_center_agents WHERE email = $1 AND is_active = true) AS agent_name,
       COALESCE(
         (SELECT json_agg(json_build_object('id', c.id, 'label', c.label) ORDER BY c.sort_order)
          FROM ${SCHEMA}.resolver_category_access rca
@@ -33,11 +34,12 @@ async function getUserProfile(payload) {
     success: true,
     data: {
       email: row.email,
-      name: row.resolver_name || row.manager_name || row.admin_name || '',
+      name: row.resolver_name || row.manager_name || row.admin_name || row.agent_name || '',
       is_resolver: Boolean(row.resolver_name),
       resolver_categories: row.resolver_categories || [],
       is_manager: Boolean(row.manager_name),
       is_admin: Boolean(row.admin_name),
+      is_call_center_agent: Boolean(row.agent_name),
     },
   };
 }

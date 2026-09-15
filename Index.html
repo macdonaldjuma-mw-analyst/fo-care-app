@@ -1,131 +1,2026 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resolver Dashboard | FO Care</title>
-  
-  <!-- Google Fonts: Sora, IBM Plex Sans, IBM Plex Mono -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Tailwind CSS (via CDN for development, use CLI build for production) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Tailwind Configuration for Fonts and Custom Colors -->
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sora: ['Sora', 'sans-serif'],
-            sans: ['"IBM Plex Sans"', 'sans-serif'],
-            mono: ['"IBM Plex Mono"', 'monospace'],
-          },
-          colors: {
-            brand: {
-              dark: '#064e3b', // Tailwind emerald-900
-              primary: '#059669', // Tailwind emerald-600
-              light: '#d1fae5', // Tailwind emerald-100
-            }
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FO Care — Back Office Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --oaf-kakamega:  #1F7A5C;
+            --oaf-lamu:      #14201A;
+            --oaf-peagreen:  #1F7A5C;
+            --oaf-binzari:   #B0721A;
+            --oaf-amhara:    #14201A;
+            --oaf-cinnamon:  #A6392E;
+            --oaf-tubura:    #B0721A;
+            --oaf-night:     #14201A;
+            --oaf-mlango:    #00A8AB;
+            --oaf-crimson:   #A6392E;
+
+            --surface: #FFFFFF;
+            --bg: #F2F3EE;
+            --ink: #14201A;
+            --ink-soft: #5B6660;
+            --line: #E1E2DA;
+            --line-strong: #C9CBC1;
+            --signal-bg: #E7F1EC;
+            --amber-bg: #FBF0DE;
+            --crimson-bg: #FBEAE7;
+            --slate-bg: #ECEDE7;
+            --mono: 'IBM Plex Mono', ui-monospace, monospace;
+            --hero-gradient: linear-gradient(180deg, #14201A 0%, #1B2A21 100%);
         }
-      }
-    }
-  </script>
 
-  <style>
-    /* Minimal custom CSS. Tailwind handles 99% of styling. */
-    body { font-family: 'IBM Plex Sans', sans-serif; background-color: #f3f4f6; }
-    h1, h2, h3 { font-family: 'Sora', sans-serif; }
-    .ticket-code { font-family: 'IBM Plex Mono', monospace; }
-  </style>
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--ink);
+            font-size: 13px;
+        }
+        h1, h2, h3 { font-family: 'Sora', 'IBM Plex Sans', sans-serif; font-weight: 700; }
+        .mono { font-family: var(--mono); }
+        .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+        .sidebar { background: var(--hero-gradient); }
+        .nav-item {
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            padding: 8px 12px; border-radius: 6px; color: #A9B3A5;
+            font-size: 12px; font-weight: 500; cursor: pointer; transition: all .15s ease;
+        }
+        .nav-item .nav-left { display: flex; align-items: center; gap: 8px; }
+        .nav-item:hover { color: white; }
+        .nav-item.active { background: #1D2A22; color: white; }
+        .nav-count { font-family: var(--mono); font-size: 10px; color: #7C8880; background: #1D2A22; padding: 1px 6px; border-radius: 9px; }
+        .nav-item.active .nav-count { color: var(--oaf-kakamega); background: #14231C; }
+
+        .ticket-row {
+            padding: 9px 14px; border-bottom: 1px solid #EEEFEA; cursor: pointer; transition: background .12s ease;
+        }
+        .ticket-row:hover { background: #FAFAF7; }
+        .ticket-row.selected { background: var(--signal-bg); border-left: 2px solid var(--oaf-kakamega); padding-left: 12px; }
+
+        .chip {
+            display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono);
+            padding: 2px 7px; border-radius: 3px; font-size: 10px; font-weight: 600; white-space: nowrap;
+        }
+        .grade-A { background: var(--signal-bg); color: var(--oaf-kakamega); }
+        .grade-B { background: rgba(0,168,171,0.13); color: #00787A; }
+        .grade-C { background: var(--amber-bg); color: var(--oaf-binzari); }
+        .grade-D { background: var(--crimson-bg); color: var(--oaf-crimson); }
+        .grade-NA { background: var(--slate-bg); color: var(--ink-soft); }
+
+        .card { background: var(--surface); border-radius: 6px; border: 1px solid var(--line); }
+        .btn { border-radius: 5px; font-weight: 600; font-size: 12px; padding: 6px 12px; transition: all .15s ease; }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: var(--ink); color: white; }
+        .btn-primary:hover { background: #263229; }
+        .btn-outline { background: white; border: 1px solid var(--line-strong); color: var(--ink); }
+        .btn-outline:hover { background: #FAFAF7; }
+        .btn-danger-outline { background: white; border: 1px solid var(--oaf-crimson); color: var(--oaf-crimson); }
+
+        .badge { font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 3px; display: inline-block; white-space: nowrap; }
+        .badge.crimson { background: var(--crimson-bg); color: var(--oaf-crimson); }
+        .badge.amber { background: var(--amber-bg); color: var(--oaf-binzari); }
+        .badge.slate { background: var(--slate-bg); color: var(--ink-soft); }
+        .badge.signal { background: var(--signal-bg); color: var(--oaf-kakamega); }
+        .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 6px; flex-shrink: 0; }
+        .dot.crimson { background: var(--oaf-crimson); }
+        .dot.amber { background: var(--oaf-binzari); }
+        .dot.signal { background: var(--oaf-kakamega); }
+
+        .table-card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+        .dense-table { width: 100%; border-collapse: collapse; }
+        .dense-table thead th {
+            text-align: left; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em;
+            color: var(--ink-soft); font-weight: 600; padding: 7px 12px; border-bottom: 1px solid var(--line);
+            background: #FAFAF7; white-space: nowrap;
+        }
+        .dense-table tbody td { padding: 7px 12px; border-bottom: 1px solid #EEEFEA; font-size: 12px; vertical-align: middle; }
+        .dense-table tbody tr:last-child td { border-bottom: none; }
+        .dense-table tbody tr:hover { background: #FAFAF7; }
+        .dense-table .num { text-align: right; }
+        .mini-bar-track { width: 60px; height: 5px; border-radius: 3px; background: var(--slate-bg); overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 8px; }
+        .mini-bar-fill { height: 100%; background: var(--oaf-kakamega); border-radius: 3px; }
+
+        .pulse-card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; }
+        .pulse-top { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
+        .pulse-total { font-family: var(--mono); font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
+        .pulse-total-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-soft); margin-bottom: 3px; }
+        .pulse-legend { display: flex; gap: 14px; flex-wrap: wrap; }
+        .pl-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--ink-soft); }
+        .pl-dot { width: 7px; height: 7px; border-radius: 2px; }
+        .pl-val { font-family: var(--mono); font-weight: 600; color: var(--ink); }
+        .pulse-bar { height: 20px; border-radius: 3px; overflow: hidden; display: flex; background: var(--slate-bg); }
+        .pulse-seg { height: 100%; }
+        .pulse-scale { display: flex; justify-content: space-between; margin-top: 5px; font-family: var(--mono); font-size: 9px; color: var(--ink-soft); }
+        .section-title { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; }
+        .section-note { font-size: 11px; color: var(--ink-soft); font-family: var(--mono); }
+
+        .skeleton { background: linear-gradient(90deg,#EEEDE7 25%,#F6F5F1 37%,#EEEDE7 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; border-radius: 10px; }
+        @keyframes shimmer { 0%{background-position:100% 50%} 100%{background-position:0 50%} }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: #D8D6CD; border-radius: 8px; }
+
+        #admintab-categories, #admintab-resolvers, #admintab-managers, #admintab-admins, #admintab-audit {
+            background: transparent; color: var(--ink-soft); border: none; border-bottom: 2px solid transparent;
+            padding: 10px 14px; border-radius: 0; font-size: 12px; font-weight: 600;
+        }
+        .admintab-active { background: transparent !important; color: var(--ink) !important; border: none !important; border-bottom: 2px solid var(--oaf-kakamega) !important; margin-bottom: 0 !important; }
+
+        .tlp-head { padding: 12px 14px 10px; border-bottom: 1px solid var(--line); }
+        .tlp-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .tlp-title { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 13px; }
+
+        .t-row { display: flex; flex-direction: column; gap: 3px; padding: 9px 14px; border-bottom: 1px solid #EEEFEA; cursor: pointer; }
+        .t-row:hover { background: #FAFAF7; }
+        .t-row.selected { background: var(--signal-bg); border-left: 2px solid var(--oaf-kakamega); padding-left: 12px; }
+        .t-row-top { display: flex; align-items: center; justify-content: space-between; }
+        .t-num { font-family: var(--mono); font-size: 11px; font-weight: 600; }
+        .t-cat { font-size: 12px; font-weight: 500; }
+        .t-meta { display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; color: var(--ink-soft); }
+
+        .td-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+        .td-num { font-family: var(--mono); font-size: 18px; font-weight: 600; }
+        .td-cat { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+        .td-actions { display: flex; gap: 6px; }
+        .facts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; margin-bottom: 14px; background: var(--surface); }
+        .fact { padding: 10px 12px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+        .fact:nth-child(4n) { border-right: none; }
+        .fact-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); margin-bottom: 3px; }
+        .fact-val { font-size: 12.5px; font-weight: 500; }
+
+        .thread { border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+        .thread-head { padding: 10px 14px; border-bottom: 1px solid var(--line); font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 700; }
+        .comment { padding: 10px 14px; border-bottom: 1px solid #EEEFEA; }
+        .comment-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
+        .comment-author { font-size: 11.5px; font-weight: 600; }
+        .comment-time { font-family: var(--mono); font-size: 10px; color: var(--ink-soft); }
+        .comment-body { font-size: 12.5px; color: var(--ink); }
+        .comment-input-row { padding: 10px 14px; display: flex; gap: 8px; }
+        .comment-input { flex: 1; border: 1px solid var(--line-strong); border-radius: 5px; padding: 7px 10px; font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; }
+
+        .toggle-pill { font-family: var(--mono); font-size: 9.5px; font-weight: 600; padding: 2px 7px; border-radius: 9px; display: inline-block; }
+        .toggle-pill.on { background: var(--signal-bg); color: var(--oaf-kakamega); }
+        .toggle-pill.off { background: var(--slate-bg); color: var(--ink-soft); }
+        .link-btn { font-size: 11px; font-weight: 600; color: var(--oaf-kakamega); cursor: pointer; background: none; border: none; padding: 0; }
+        .avatar-init { width: 22px; height: 22px; border-radius: 5px; background: var(--slate-bg); color: var(--ink-soft); font-family: var(--mono); font-size: 9.5px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; flex-shrink: 0; }
+        .person-cell { display: flex; align-items: center; }
+
+        .form-input { width: 100%; padding: 7px 10px; border: 1px solid var(--line-strong); border-radius: 5px; font-size: 12.5px; font-family: 'IBM Plex Sans', sans-serif; }
+        .form-label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--ink-soft); display: block; margin-bottom: 4px; }
+        .bar-track { height: 8px; border-radius: 999px; background: #EFEEEA; overflow: hidden; display: flex; }
+    </style>
 </head>
-<body class="text-gray-800 antialiased h-screen flex flex-col">
+<body class="antialiased">
 
-  <!-- Header -->
-  <header class="bg-brand-dark text-white p-4 shadow-md flex justify-between items-center shrink-0">
-    <div class="flex items-center gap-3">
-      <div class="w-8 h-8 bg-brand-primary rounded flex items-center justify-center font-sora font-bold">FO</div>
-      <h1 class="text-xl font-sora font-semibold tracking-wide">Resolver Desk</h1>
-    </div>
-    <div class="text-sm font-medium">Resolver: <span id="current-user" class="font-bold text-brand-light">Loading...</span></div>
-  </header>
-
-  <!-- Main Layout -->
-  <main class="flex-1 flex overflow-hidden">
-    
-    <!-- Sidebar / Filters -->
-    <aside class="w-64 bg-white border-r border-gray-200 p-4 flex flex-col gap-4 overflow-y-auto hidden md:flex shrink-0">
-      <h2 class="font-sora font-semibold text-gray-600 uppercase text-xs tracking-wider">Queue Filters</h2>
-      <div class="flex flex-col gap-2" id="status-filters">
-        <button class="filter-btn active text-left px-3 py-2 rounded bg-brand-light text-brand-dark font-medium text-sm transition-colors" data-status="ALL">All Tickets</button>
-        <button class="filter-btn text-left px-3 py-2 rounded hover:bg-gray-100 text-gray-700 font-medium text-sm transition-colors" data-status="OPEN">Open</button>
-        <button class="filter-btn text-left px-3 py-2 rounded hover:bg-gray-100 text-gray-700 font-medium text-sm transition-colors" data-status="IN_PROGRESS">In Progress</button>
-      </div>
-      
-      <div class="mt-4">
-        <h2 class="font-sora font-semibold text-gray-600 uppercase text-xs tracking-wider mb-2">Metrics</h2>
-        <div class="bg-red-50 text-red-700 border border-red-200 rounded p-3 text-sm">
-          <span class="font-bold block mb-1">SLA Breached</span>
-          <span class="text-2xl font-mono font-bold" id="breach-count">0</span>
+    <div id="splash-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center" style="background: var(--hero-gradient);">
+        <div id="logo-container" class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-2xl p-3">
+            <svg class="w-12 h-12 text-[#2B7F68]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
         </div>
-      </div>
-    </aside>
-
-    <!-- Ticket Queue List -->
-    <section class="flex-1 p-6 overflow-y-auto bg-gray-50 relative">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-sora font-bold text-gray-800" id="queue-title">Active Queue</h2>
-        <button id="refresh-btn" class="bg-white border border-gray-300 shadow-sm px-3 py-1.5 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-          Refresh
-        </button>
-      </div>
-
-      <!-- Loading State -->
-      <div id="loading-indicator" class="hidden flex justify-center py-12">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
-      </div>
-
-      <!-- Table Container -->
-      <div class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-gray-100 border-b border-gray-200 text-gray-600 font-sora text-sm">
-              <th class="p-4 font-semibold">Ticket ID</th>
-              <th class="p-4 font-semibold">Category</th>
-              <th class="p-4 font-semibold">Status</th>
-              <th class="p-4 font-semibold">SLA Due</th>
-              <th class="p-4 font-semibold">District</th>
-            </tr>
-          </thead>
-          <tbody id="ticket-list" class="divide-y divide-gray-100 text-sm">
-            <!-- Tickets injected here via JS -->
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- Ticket Detail Drawer (Slide-over) -->
-  <div id="ticket-drawer" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-50 hidden transition-opacity">
-    <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-xl flex flex-col transform translate-x-full transition-transform duration-300" id="drawer-panel">
-      <!-- Drawer Content injected here -->
-      <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-        <h2 class="font-sora font-bold text-lg ticket-code" id="drawer-title">TKT-0000</h2>
-        <button id="close-drawer" class="text-gray-400 hover:text-gray-800 p-1">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-      </div>
-      <div id="drawer-body" class="flex-1 overflow-y-auto p-6 space-y-6">
-        <!-- Content loaded dynamically -->
-      </div>
+        <h1 class="text-white text-xl font-bold mt-4">FO Care Back Office</h1>
+        <p class="text-white/70 text-sm mt-1" id="splash-status">Checking your access...</p>
     </div>
-  </div>
 
-  <script type="module" src="./main.js"></script>
+    <div id="app-shell" class="hidden h-screen flex overflow-hidden">
+        <aside class="sidebar w-56 shrink-0 flex flex-col p-4 text-white">
+            <div class="flex items-center gap-2 px-2 mb-6">
+                <div class="w-8 h-8 bg-white rounded-xl flex items-center justify-center shrink-0" id="sidebar-logo">
+                    <svg class="w-5 h-5 text-[#2B7F68]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <span class="font-bold text-sm">FO Care</span>
+            </div>
+
+            <nav class="space-y-1 flex-1">
+                <div id="nav-dashboard" class="nav-item hidden" onclick="switchView('dashboard')">
+                    <span class="nav-left"><span>📊</span><span>Dashboard</span></span>
+                </div>
+                <div id="nav-tickets" class="nav-item hidden" onclick="switchView('tickets')">
+                    <span class="nav-left"><span>🎫</span><span>Tickets</span></span>
+                </div>
+                <div id="nav-create-ticket" class="nav-item hidden" onclick="switchView('create-ticket')">
+                    <span class="nav-left"><span>📞</span><span>Create Ticket</span></span>
+                </div>
+                <div id="nav-admin" class="nav-item hidden" onclick="switchView('admin')">
+                    <span class="nav-left"><span>⚙️</span><span>Admin</span></span>
+                </div>
+            </nav>
+
+            <div class="border-t border-white/15 pt-3 px-2">
+                <p class="text-xs font-bold truncate" id="sidebar-user-name">--</p>
+                <p class="text-[10px] text-white/60 truncate" id="sidebar-user-email">--</p>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-hidden">
+
+            <!-- ============ TICKETS (RESOLVER) ============ -->
+            <section id="view-tickets" class="hidden flex-1 flex overflow-hidden">
+
+                <div class="w-[360px] shrink-0 border-r border-gray-200 flex flex-col overflow-hidden" style="background:var(--surface); border-color:var(--line);">
+                    <div class="tlp-head">
+                        <div class="tlp-title-row">
+                            <span class="tlp-title">Tickets</span>
+                            <button onclick="loadTickets()" class="link-btn">↻ Refresh</button>
+                        </div>
+                        <input type="text" id="filter-search" oninput="onSearchInput()" placeholder="Search ticket #, farmer, account..."
+                               class="form-input" style="font-size:11.5px; margin-bottom:6px;">
+                        <select id="filter-category" onchange="loadTickets()" class="form-input mono" style="font-size:11px; margin-bottom:6px;">
+                            <option value="">All Categories</option>
+                        </select>
+                        <select id="filter-status" onchange="loadTickets()" class="form-input mono" style="font-size:11px; margin-bottom:6px;">
+                            <option value="">All Statuses</option>
+                            <option value="OPEN">Open</option>
+                            <option value="IN_PROGRESS">In Progress</option>
+                            <option value="RESOLVED_PENDING_CONFIRMATION">Resolved - Pending Confirmation</option>
+                            <option value="REOPENED">Reopened</option>
+                            <option value="CLOSED">Closed</option>
+                        </select>
+                        <div class="flex gap-3 text-xs font-semibold" style="color:var(--ink-soft);">
+                            <label class="flex items-center gap-1.5"><input type="checkbox" id="filter-overdue" onchange="loadTickets()"> Overdue only</label>
+                            <label class="flex items-center gap-1.5"><input type="checkbox" id="filter-mine" onchange="loadTickets()"> Assigned to me</label>
+                        </div>
+                    </div>
+                    <div id="ticket-list" class="flex-1 overflow-y-auto"></div>
+                </div>
+
+                <div id="ticket-detail-panel" class="flex-1 overflow-y-auto p-6">
+                    <div class="flex items-center justify-center h-full text-sm" style="color:var(--ink-soft);">
+                        Select a ticket from the list to view its details.
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ DASHBOARD ============ -->
+            <section id="view-dashboard" class="hidden flex-1 p-5 overflow-y-auto">
+                <div class="max-w-6xl mx-auto space-y-5">
+                    <div class="flex justify-between items-baseline">
+                        <span class="section-title">Ticket pulse</span>
+                        <button onclick="loadDashboard()" class="text-xs font-bold" style="color:var(--oaf-kakamega);">↻ Refresh</button>
+                    </div>
+
+                    <div id="dashboard-summary-strip" class="pulse-card"></div>
+
+                    <div>
+                        <div class="flex justify-between items-baseline mb-2">
+                            <span class="section-title">By category</span>
+                        </div>
+                        <div id="dashboard-category-grid" class="table-card"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                        <div>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="section-title">SLA breaches</span>
+                            </div>
+                            <div class="table-card"><div id="dashboard-sla-list"></div></div>
+                        </div>
+
+                        <div id="dashboard-resolver-section" class="hidden">
+                            <div class="flex justify-between items-baseline mb-2 flex-wrap gap-2">
+                                <span class="section-title">Resolver performance</span>
+                                <div class="flex items-center gap-2 text-xs">
+                                    <input type="date" id="perf-date-from" class="px-2 py-1.5 border border-gray-200 rounded-lg">
+                                    <span style="color:var(--ink-soft);">to</span>
+                                    <input type="date" id="perf-date-to" class="px-2 py-1.5 border border-gray-200 rounded-lg">
+                                    <button onclick="loadResolverPerformance()" class="btn btn-outline">Apply</button>
+                                    <button onclick="handleExportHistory()" class="btn btn-primary">⬇ Export CSV</button>
+                                </div>
+                            </div>
+                            <div class="table-card"><div id="dashboard-resolver-table"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ ADMIN ============ -->
+            <section id="view-admin" class="hidden flex-1 flex flex-col overflow-hidden">
+                <div class="border-b border-gray-200 px-8 pt-6" style="background:var(--surface);">
+                    <div class="flex gap-1">
+                        <button onclick="switchAdminTab('categories')" id="admintab-categories" class="btn" style="border-radius:10px 10px 0 0;">Categories</button>
+                        <button onclick="switchAdminTab('resolvers')" id="admintab-resolvers" class="btn" style="border-radius:10px 10px 0 0;">Resolvers</button>
+                        <button onclick="switchAdminTab('managers')" id="admintab-managers" class="btn" style="border-radius:10px 10px 0 0;">Managers</button>
+                        <button onclick="switchAdminTab('admins')" id="admintab-admins" class="btn" style="border-radius:10px 10px 0 0;">Admins</button>
+                        <button onclick="switchAdminTab('audit')" id="admintab-audit" class="btn" style="border-radius:10px 10px 0 0;">Audit Log</button>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8">
+                    <!-- Categories: split view (list left, category edit + fields right) -->
+                    <div id="admin-panel-categories" class="hidden max-w-6xl mx-auto flex gap-6">
+                        <div class="w-[320px] shrink-0">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="section-title">Categories</span>
+                                <button onclick="showNewCategoryForm()" class="link-btn">+ Add</button>
+                            </div>
+                            <div id="admin-category-list" class="table-card"></div>
+                        </div>
+                        <div id="admin-category-detail" class="flex-1">
+                            <div class="card p-6 text-center text-sm" style="color:var(--ink-soft);">Select a category, or add a new one.</div>
+                        </div>
+                    </div>
+
+                    <!-- Resolvers -->
+                    <div id="admin-panel-resolvers" class="hidden max-w-4xl mx-auto space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="section-title">Resolvers</span>
+                            <button onclick="showNewResolverForm()" class="btn btn-primary">+ Add Resolver</button>
+                        </div>
+                        <div id="admin-resolver-form-container"></div>
+                        <div id="admin-resolver-list" class="table-card"></div>
+                    </div>
+
+                    <!-- Managers -->
+                    <div id="admin-panel-managers" class="hidden max-w-3xl mx-auto space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="section-title">Managers</span>
+                            <button onclick="showNewRoleForm('manager')" class="btn btn-primary">+ Add Manager</button>
+                        </div>
+                        <div id="admin-manager-form-container"></div>
+                        <div id="admin-manager-list" class="table-card"></div>
+                    </div>
+
+                    <!-- Admins -->
+                    <div id="admin-panel-admins" class="hidden max-w-3xl mx-auto space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="section-title">Admins</span>
+                            <button onclick="showNewRoleForm('admin')" class="btn btn-primary">+ Add Admin</button>
+                        </div>
+                        <div id="admin-admin-form-container"></div>
+                        <div id="admin-admin-list" class="table-card"></div>
+                    </div>
+
+                    <!-- Audit Log -->
+                    <div id="admin-panel-audit" class="hidden max-w-5xl mx-auto space-y-4">
+                        <div class="flex justify-between items-center flex-wrap gap-2">
+                            <span class="section-title">Audit Log</span>
+                            <div class="flex items-center gap-2 text-xs">
+                                <input type="date" id="audit-date-from" class="form-input" style="width:auto;">
+                                <span style="color:var(--ink-soft);">to</span>
+                                <input type="date" id="audit-date-to" class="form-input" style="width:auto;">
+                                <button onclick="loadAuditLog()" class="btn btn-outline">Apply</button>
+                            </div>
+                        </div>
+                        <div id="admin-audit-list" class="table-card"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ CREATE TICKET (Hotline / Call Center) ============ -->
+            <section id="view-create-ticket" class="hidden flex-1 overflow-y-auto p-6">
+                <div class="max-w-2xl mx-auto space-y-4">
+                    <div>
+                        <h2 class="text-lg font-bold" style="font-family:'Sora',sans-serif;">Log a Hotline Ticket</h2>
+                        <p class="text-xs" style="color:var(--ink-soft);">For calls to the 3006 short code — logged on behalf of the Field Officer.</p>
+                    </div>
+
+                    <!-- FO Lookup -->
+                    <div class="card p-4">
+                        <div class="fact-label" style="margin-bottom:6px;">Field Officer</div>
+                        <div id="ct-fo-selected" class="hidden" style="background:var(--signal-bg); border-radius:6px; padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div class="text-sm font-semibold" id="ct-fo-selected-name"></div>
+                                <div class="mono" style="font-size:11px; color:var(--ink-soft);" id="ct-fo-selected-detail"></div>
+                            </div>
+                            <button onclick="clearSelectedFO()" class="link-btn">Change</button>
+                        </div>
+                        <div id="ct-fo-search-wrap">
+                            <input type="text" id="ct-fo-search" oninput="onFoSearchInput()" placeholder="Search FO by name or email..." class="form-input">
+                            <div id="ct-fo-results" class="mt-2" style="max-height:180px; overflow-y-auto;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Caller phone + description -->
+                    <div class="card p-4 space-y-3">
+                        <div>
+                            <label class="form-label">Caller Phone Number</label>
+                            <input type="text" id="ct-phone" class="form-input" placeholder="e.g. 099xxxxxxx">
+                        </div>
+                        <div>
+                            <label class="form-label">Ticket Category</label>
+                            <select id="ct-category-select" onchange="onCtCategoryChange()" class="form-input">
+                                <option value="">-- Loading categories... --</option>
+                            </select>
+                        </div>
+                        <div id="ct-locked-field-notice" class="hidden" style="background:var(--amber-bg); color:var(--oaf-binzari); font-size:11.5px; padding:8px 12px; border-radius:6px;">
+                            This category includes fields that need farmer order data, which isn't available from the hotline form. Those fields will be left blank — note details in the description instead.
+                        </div>
+                        <div id="ct-dynamic-fields" class="space-y-3"></div>
+                        <div>
+                            <label class="form-label">Description — what did the FO call about?</label>
+                            <textarea id="ct-description" rows="3" class="form-input"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Link to existing ticket -->
+                    <div class="card p-4">
+                        <div class="fact-label" style="margin-bottom:6px;">Link to an Existing Ticket (optional — for follow-up calls)</div>
+                        <div id="ct-linked-selected" class="hidden" style="background:var(--slate-bg); border-radius:6px; padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div class="mono text-sm font-semibold" id="ct-linked-ticket-number"></div>
+                            <button onclick="clearLinkedTicket()" class="link-btn">Remove</button>
+                        </div>
+                        <div id="ct-link-search-wrap">
+                            <input type="text" id="ct-link-search" oninput="onLinkSearchInput()" placeholder="Search by FO name, email, or ticket number..." class="form-input">
+                            <div id="ct-link-results" class="mt-2" style="max-height:180px; overflow-y-auto;"></div>
+                        </div>
+                    </div>
+
+                    <!-- FCR -->
+                    <div class="card p-4">
+                        <label class="flex items-center gap-2 text-sm font-semibold">
+                            <input type="checkbox" id="ct-is-fcr" onchange="onFcrToggle()"> Resolved on this call (First Call Resolution)
+                        </label>
+                        <div id="ct-fcr-notes-wrap" class="hidden mt-3">
+                            <label class="form-label">Resolution Notes — what did you tell the FO / how was it resolved?</label>
+                            <textarea id="ct-fcr-notes" rows="3" class="form-input"></textarea>
+                        </div>
+                    </div>
+
+                    <button onclick="submitHotlineTicket()" id="ct-submit-btn" class="btn btn-primary" style="width:100%; padding:12px; font-size:13px;">Log Ticket</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="toast" class="fixed bottom-6 right-6 max-w-sm bg-gray-900 text-white px-4 py-3.5 rounded-2xl shadow-xl text-xs font-semibold flex items-center justify-between transition-opacity duration-300 opacity-0 pointer-events-none z-50">
+        <span id="toast-message"></span>
+        <button onclick="hideToast()" class="text-[#E8B757] ml-3 font-bold">Dismiss</button>
+    </div>
+
+    <script>
+        const AppState = {
+            profile: null,
+            currentView: 'tickets',
+            tickets: [],
+            selectedTicketId: null,
+            ticketDetail: null,
+            myResolvers: null,
+            dashboard: null,
+            slaBreaches: null,
+            adminTab: 'categories',
+            adminCategories: null,
+            selectedAdminCategoryId: null,
+            adminCategoryFields: null,
+            adminResolvers: null,
+            adminManagers: null,
+            adminAdmins: null,
+            ctCategories: null,
+            ctPodStructure: null,
+            ctSelectedCategoryId: null,
+            ctFormValues: {},
+            ctSelectedFO: null,
+            ctLinkedTicket: null,
+            ctIsFcr: false,
+            ctLookedUpFarmer: null
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadLogo();
+            loadProfile();
+        });
+
+        // ---------- Logo & Profile ----------
+        function loadLogo() {
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response && response.success && response.data) {
+                        document.getElementById('sidebar-logo').innerHTML = `<img src="${response.data}" class="w-8 h-8 object-contain rounded-xl" />`;
+                        document.getElementById('logo-container').innerHTML = `<img src="${response.data}" class="w-12 h-12 object-contain rounded-2xl" />`;
+                    }
+                })
+                .getLogoBase64();
+        }
+
+        function loadProfile() {
+            document.getElementById('splash-status').innerText = 'Checking your access...';
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (!response.success) {
+                        showFatalError("Couldn't verify your access: " + response.error);
+                        return;
+                    }
+                    const p = response.data;
+                    if (!p.is_resolver && !p.is_manager && !p.is_admin) {
+                        showFatalError("You don't currently have access to this tool. Contact your admin if this seems wrong.");
+                        return;
+                    }
+                    AppState.profile = p;
+                    renderNav(p);
+                    populateCategoryFilterDropdown(p);
+                    document.getElementById('sidebar-user-name').innerText = p.name || p.email;
+                    document.getElementById('sidebar-user-email').innerText = p.email;
+
+                    document.getElementById('splash-screen').classList.add('opacity-0', 'pointer-events-none');
+                    document.getElementById('app-shell').classList.remove('hidden');
+
+                    const defaultView = p.is_resolver ? 'tickets' : (p.is_manager ? 'dashboard' : 'admin');
+                    switchView(defaultView);
+                })
+                .withFailureHandler((err) => showFatalError("Couldn't verify your access: " + err.message))
+                .getUserProfile();
+        }
+
+        function populateCategoryFilterDropdown(p) {
+            const select = document.getElementById('filter-category');
+            if (!select) return;
+            const categories = p.resolver_categories || [];
+            // Supports both the new {id,label} shape and the older bare-number
+            // shape, in case the get_user_profile query hasn't been updated yet.
+            select.innerHTML = `<option value="">All Categories</option>` +
+                categories.map(c => {
+                    const id = (c && typeof c === 'object') ? c.id : c;
+                    const label = (c && typeof c === 'object') ? c.label : ('Category ' + c);
+                    return `<option value="${id}">${label}</option>`;
+                }).join('');
+        }
+
+        function showFatalError(message) {
+            document.getElementById('splash-status').innerText = message;
+        }
+
+        function renderNav(p) {
+            document.getElementById('nav-tickets').classList.toggle('hidden', !p.is_resolver);
+            document.getElementById('nav-dashboard').classList.toggle('hidden', !(p.is_resolver || p.is_manager || p.is_admin));
+            document.getElementById('nav-create-ticket').classList.toggle('hidden', !(p.is_call_center_agent || p.is_admin));
+            document.getElementById('nav-admin').classList.toggle('hidden', !p.is_admin);
+        }
+
+        function switchView(view) {
+            AppState.currentView = view;
+            ['tickets', 'dashboard', 'admin', 'create-ticket'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.toggle('hidden', v !== view);
+                document.getElementById(`nav-${v}`).classList.toggle('active', v === view);
+            });
+            if (view === 'tickets') loadTickets();
+            if (view === 'dashboard') loadDashboard();
+            if (view === 'admin') switchAdminTab('categories');
+            if (view === 'create-ticket') loadCreateTicketView();
+        }
+
+        // ---------- Resolver: Ticket List ----------
+        let searchDebounceTimer;
+        function onSearchInput() {
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(loadTickets, 350);
+        }
+
+        function loadTickets() {
+            const filters = {
+                status_code: document.getElementById('filter-status').value || null,
+                is_overdue: document.getElementById('filter-overdue').checked || null,
+                assigned_to_me: document.getElementById('filter-mine').checked || null,
+                category_id: document.getElementById('filter-category').value ? Number(document.getElementById('filter-category').value) : null,
+                search: document.getElementById('filter-search').value.trim() || null
+            };
+            document.getElementById('ticket-list').innerHTML = renderListSkeleton();
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) {
+                        AppState.tickets = response.data;
+                        renderTicketList();
+                    } else {
+                        showToast("Failed to load tickets: " + response.error);
+                    }
+                })
+                .withFailureHandler((err) => showToast("Failed to load tickets: " + err.message))
+                .getTickets(filters);
+        }
+
+        function renderListSkeleton() {
+            const row = `<div class="p-4 space-y-2 border-b border-gray-100"><div class="skeleton h-3 w-1/2"></div><div class="skeleton h-3 w-full"></div></div>`;
+            return row + row + row;
+        }
+
+        function hoursOverdue(slaDueAt) {
+            if (!slaDueAt) return 0;
+            return Math.max(0, (new Date() - new Date(slaDueAt)) / 3600000);
+        }
+
+        function ticketAgeHours(createdAt) {
+            if (!createdAt) return 0;
+            return Math.max(0, (new Date() - new Date(createdAt)) / 3600000);
+        }
+
+        function sourceBadge(sourceSystem) {
+            if (!sourceSystem || sourceSystem === 'core_program') return '';
+            const label = sourceSystem === 'call_center' ? 'HOTLINE' : sourceSystem.toUpperCase();
+            return `<span class="badge slate" style="margin-left:6px;">${label}</span>`;
+        }
+
+        function renderTicketList() {
+            const container = document.getElementById('ticket-list');
+            if (!AppState.tickets.length) {
+                container.innerHTML = `<div class="p-6 text-center text-xs" style="color:var(--ink-soft);">No tickets match these filters.</div>`;
+                return;
+            }
+            container.innerHTML = AppState.tickets.map(t => {
+                const isSelected = AppState.selectedTicketId === t.id;
+                const isCritical = t.is_overdue && hoursOverdue(t.sla_due_at) > 24;
+                const badgeClass = t.is_overdue ? (isCritical ? 'crimson' : 'amber') : 'slate';
+                const badgeHours = t.is_overdue ? hoursOverdue(t.sla_due_at) : ticketAgeHours(t.created_at);
+                return `
+                    <div class="t-row ${isSelected ? 'selected' : ''}" onclick="selectTicket(${t.id})">
+                        <div class="t-row-top">
+                            <span class="t-num">${t.ticket_number}${sourceBadge(t.source_system)}</span>
+                            <span class="badge ${badgeClass}">${badgeHours.toFixed(1)}h</span>
+                        </div>
+                        <div class="t-cat">${t.category_label}</div>
+                        <div class="t-meta">
+                            <span>${t.site_name || '--'} · ${t.assigned_resolver_email || 'Unassigned'}</span>
+                            <span>${t.status_label}</span>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function formatDate(iso) {
+            if (!iso) return '--';
+            return new Date(iso).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function formatDateTime(iso) {
+            if (!iso) return '--';
+            return new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+
+        // ---------- Resolver: Ticket Detail ----------
+        function selectTicket(ticketId) {
+            AppState.selectedTicketId = ticketId;
+            renderTicketList();
+
+            const panel = document.getElementById('ticket-detail-panel');
+            panel.innerHTML = `<div class="skeleton h-6 w-1/3 mb-4"></div><div class="skeleton h-4 w-full mb-2"></div><div class="skeleton h-4 w-2/3"></div>`;
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) {
+                        AppState.ticketDetail = response.data;
+                        renderTicketDetail();
+                    } else {
+                        panel.innerHTML = `<div class="card p-6 text-sm" style="color:var(--oaf-crimson);">Failed to load ticket: ${response.error}</div>`;
+                    }
+                })
+                .withFailureHandler((err) => {
+                    panel.innerHTML = `<div class="card p-6 text-sm" style="color:var(--oaf-crimson);">Failed to load ticket: ${err.message}</div>`;
+                })
+                .getTicketDetail(ticketId);
+        }
+
+        function prettifyKey(key) {
+            return key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        }
+
+        function renderCustomFields(customFields) {
+            const entries = Object.entries(customFields || {});
+            if (!entries.length) return '';
+            return `
+                <div class="grid grid-cols-2 gap-3 mt-3">
+                    ${entries.map(([k, v]) => `
+                        <div>
+                            <div class="fact-label">${prettifyKey(k)}</div>
+                            <div class="fact-val">${v === true ? 'Yes' : (v === false ? 'No' : (v ?? '--'))}</div>
+                        </div>`).join('')}
+                </div>`;
+        }
+
+        function renderAttachments(attachments) {
+            if (!attachments || !attachments.length) return '';
+            return `
+                <div class="mt-4">
+                    <div class="fact-label" style="margin-bottom:4px;">Attachments</div>
+                    ${attachments.map(a => `<a href="${a.file_url}" target="_blank" class="mono" style="font-size:11px; color:var(--oaf-kakamega); display:block; margin-top:2px;">${a.file_name || a.file_url}</a>`).join('')}
+                </div>`;
+        }
+
+        function renderComments(comments) {
+            if (!comments || !comments.length) {
+                return `<div class="comment" style="color:var(--ink-soft); font-style:italic;">No comments yet.</div>`;
+            }
+            return comments.map(c => `
+                <div class="comment">
+                    <div class="comment-top"><span class="comment-author">${c.author_name || c.author_role}</span><span class="comment-time">${formatDateTime(c.created_at)}</span></div>
+                    <div class="comment-body">${c.comment_text}</div>
+                </div>`).join('');
+        }
+
+        function renderStatusActions(ticket) {
+            const buttons = [];
+            if (ticket.status_code === 'OPEN' || ticket.status_code === 'REOPENED') {
+                buttons.push(`<button onclick="handleStatusChange(${ticket.id}, 'IN_PROGRESS')" class="btn btn-primary">Start Working</button>`);
+            }
+            if (ticket.status_code === 'IN_PROGRESS') {
+                buttons.push(`<button onclick="handleStatusChange(${ticket.id}, 'RESOLVED_PENDING_CONFIRMATION')" class="btn btn-primary">Mark Resolved</button>`);
+                buttons.push(`<button onclick="handleStatusChange(${ticket.id}, 'OPEN')" class="btn btn-outline">Revert to Open</button>`);
+            }
+            if (!buttons.length) return '';
+            return `<div class="flex gap-2 mt-4">${buttons.join('')}</div>`;
+        }
+
+        function renderTicketDetail() {
+            const t = AppState.ticketDetail;
+            const panel = document.getElementById('ticket-detail-panel');
+            const statusBadgeClass = t.status_code === 'RESOLVED_PENDING_CONFIRMATION' ? 'signal'
+                : (t.status_code === 'IN_PROGRESS' ? 'amber'
+                : (t.status_code === 'REOPENED' || t.is_overdue ? 'crimson' : 'slate'));
+
+            const isHotlineOrigin = t.source_system && t.source_system !== 'core_program';
+
+            panel.innerHTML = `
+                <div class="td-head">
+                    <div>
+                        <div class="td-num">${t.ticket_number}${sourceBadge(t.source_system)}</div>
+                        <div class="td-cat">${t.category_label} · <span class="badge ${statusBadgeClass}">${t.status_label}</span></div>
+                    </div>
+                    <div class="td-actions">${renderStatusActions(t)}</div>
+                </div>
+
+                ${t.related_ticket_number ? `
+                    <div class="card p-3" style="margin-bottom:14px; background:var(--signal-bg); border-color:var(--oaf-kakamega);">
+                        <div class="fact-label">Related Ticket</div>
+                        <div class="fact-val mono">${t.related_ticket_number}</div>
+                    </div>` : ''}
+
+                <div class="facts-grid">
+                    <div class="fact"><div class="fact-label">Site</div><div class="fact-val">${t.site_name || '--'}</div></div>
+                    <div class="fact"><div class="fact-label">FO Email</div><div class="fact-val mono" style="font-size:11px;">${t.fo_email || '--'}</div></div>
+                    <div class="fact"><div class="fact-label">Resolver</div><div class="fact-val" style="${t.assigned_resolver_email ? '' : 'color:var(--ink-soft);'}">${t.assigned_resolver_email || 'Unassigned'}</div></div>
+                    <div class="fact"><div class="fact-label">SLA Due</div><div class="fact-val mono">${formatDateTime(t.sla_due_at)}</div></div>
+                    <div class="fact"><div class="fact-label">Created</div><div class="fact-val mono">${formatDateTime(t.created_at)}</div></div>
+                    <div class="fact"><div class="fact-label">Overdue By</div><div class="fact-val mono" style="${t.is_overdue ? 'color:var(--oaf-crimson);' : ''}">${t.is_overdue ? hoursOverdue(t.sla_due_at).toFixed(1) + 'h' : '--'}</div></div>
+                    <div class="fact"><div class="fact-label">Status</div><div class="fact-val"><span class="badge ${statusBadgeClass}">${t.status_label}</span></div></div>
+                    <div class="fact"><div class="fact-label">Ticket ID</div><div class="fact-val mono">#${t.id}</div></div>
+                    ${t.caller_phone_number ? `<div class="fact"><div class="fact-label">Caller Phone</div><div class="fact-val mono">${t.caller_phone_number}</div></div>` : ''}
+                    ${t.logged_by_agent_email ? `<div class="fact"><div class="fact-label">Logged By</div><div class="fact-val mono" style="font-size:11px;">${t.logged_by_agent_email}</div></div>` : ''}
+                </div>
+
+                ${t.farmer_name && t.farmer_name !== 'Not Farmer' ? `
+                    <div class="card p-3" style="margin-bottom:14px;">
+                        <div class="fact-label">Farmer</div>
+                        <div class="fact-val">${t.farmer_name}${t.farmer_account ? ' · ' + t.farmer_account : ''}</div>
+                    </div>` : ''}
+
+                <div class="card p-4" style="margin-bottom:14px;">
+                    <p class="text-sm">${t.description}</p>
+                    ${renderCustomFields(t.custom_fields)}
+                    ${renderAttachments(t.attachments)}
+                </div>
+
+                <div class="card p-4" style="margin-bottom:14px;">
+                    <div class="fact-label" style="margin-bottom:6px;">Reassign</div>
+                    <div class="flex gap-2">
+                        <select id="reassign-select" class="form-input mono" style="font-size:11px;">
+                            <option value="">Loading resolvers...</option>
+                        </select>
+                        <button onclick="handleReassign(${t.id})" class="btn btn-outline">Reassign</button>
+                    </div>
+                </div>
+
+                <div class="thread">
+                    <div class="thread-head">Activity</div>
+                    <div id="comments-list">${renderComments(t.comments)}</div>
+                    <div class="comment-input-row">
+                        <input id="new-comment-text" class="comment-input" placeholder="Add a comment...">
+                        <button onclick="handleAddComment(${t.id})" class="btn btn-primary">Post</button>
+                    </div>
+                </div>`;
+
+            populateReassignDropdown();
+        }
+
+        function populateReassignDropdown() {
+            const select = document.getElementById('reassign-select');
+            if (!select) return;
+
+            const render = () => {
+                const current = AppState.ticketDetail.assigned_resolver_email;
+                select.innerHTML = `<option value="">-- Choose resolver --</option>` +
+                    AppState.myResolvers.map(r => `<option value="${r.email}" ${r.email === current ? 'selected' : ''}>${r.name}</option>`).join('');
+            };
+
+            if (AppState.myResolvers) { render(); return; }
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    AppState.myResolvers = response.success ? response.data : [];
+                    render();
+                })
+                .withFailureHandler(() => { AppState.myResolvers = []; render(); })
+                .getMyResolvers();
+        }
+
+        // ---------- Resolver: Actions ----------
+        function handleStatusChange(ticketId, newStatus) {
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) {
+                        showToast("Status updated.");
+                        selectTicket(ticketId);
+                        loadTickets();
+                    } else {
+                        showToast("Couldn't update status: " + response.error);
+                    }
+                })
+                .withFailureHandler((err) => showToast("Couldn't update status: " + err.message))
+                .updateTicketStatus(ticketId, newStatus);
+        }
+
+        function handleReassign(ticketId) {
+            const email = document.getElementById('reassign-select').value;
+            if (!email) { showToast("Choose a resolver first."); return; }
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) {
+                        showToast("Ticket reassigned.");
+                        selectTicket(ticketId);
+                        loadTickets();
+                    } else {
+                        showToast("Couldn't reassign: " + response.error);
+                    }
+                })
+                .withFailureHandler((err) => showToast("Couldn't reassign: " + err.message))
+                .reassignTicket(ticketId, email);
+        }
+
+        function handleAddComment(ticketId) {
+            const el = document.getElementById('new-comment-text');
+            const text = el.value.trim();
+            if (!text) { showToast("Write a comment first."); return; }
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) {
+                        el.value = '';
+                        selectTicket(ticketId);
+                    } else {
+                        showToast("Couldn't post comment: " + response.error);
+                    }
+                })
+                .withFailureHandler((err) => showToast("Couldn't post comment: " + err.message))
+                .addComment(ticketId, text);
+        }
+
+        // ==================== DASHBOARD ====================
+        function loadDashboard() {
+            document.getElementById('dashboard-summary-strip').innerHTML = renderStatCardsSkeleton();
+            document.getElementById('dashboard-category-grid').innerHTML = '';
+            document.getElementById('dashboard-sla-list').innerHTML = renderListSkeleton();
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) {
+                        AppState.dashboard = response.data;
+                        renderDashboardSummary();
+                        renderCategoryBreakdown();
+                    } else {
+                        showToast("Failed to load dashboard: " + response.error);
+                    }
+                })
+                .withFailureHandler((err) => showToast("Failed to load dashboard: " + err.message))
+                .getDashboardSummary();
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) { AppState.slaBreaches = response.data; renderSlaBreaches(); }
+                    else showToast("Failed to load SLA breaches: " + response.error);
+                })
+                .withFailureHandler((err) => showToast("Failed to load SLA breaches: " + err.message))
+                .getSlaBreaches();
+
+            const showResolverSection = AppState.profile.is_manager || AppState.profile.is_admin;
+            document.getElementById('dashboard-resolver-section').classList.toggle('hidden', !showResolverSection);
+            if (showResolverSection) loadResolverPerformance();
+        }
+
+        function renderStatCardsSkeleton() {
+            return `<div class="skeleton h-3 w-1/3 mb-3"></div><div class="skeleton h-5 w-1/4 mb-3"></div><div class="skeleton h-5 w-full"></div>`;
+        }
+
+        function renderDashboardSummary() {
+            const summary = (AppState.dashboard && AppState.dashboard.summary) || {};
+            const totals = {
+                open: Number(summary.open) || 0,
+                in_progress: Number(summary.in_progress) || 0,
+                resolved_pending: Number(summary.resolved_pending) || 0,
+                overdue: Number(summary.overdue) || 0,
+                critical_overdue: Number(summary.critical_overdue) || 0
+            };
+            const total = Number(summary.total_tickets) || (totals.open + totals.in_progress + totals.resolved_pending) || 1;
+            const pct = (n) => Math.round((n / total) * 1000) / 10;
+            const overduePct = total > 0 ? Math.round((totals.overdue / total) * 100) : 0;
+
+            document.getElementById('dashboard-summary-strip').innerHTML = `
+                <div class="pulse-top">
+                    <div>
+                        <div class="pulse-total-label">Total open workload</div>
+                        <div class="pulse-total">${total}</div>
+                    </div>
+                    <div class="pulse-legend">
+                        <div class="pl-item"><span class="pl-dot" style="background:#00A8AB"></span>Open <span class="pl-val">${totals.open}</span></div>
+                        <div class="pl-item"><span class="pl-dot" style="background:var(--oaf-binzari)"></span>In progress <span class="pl-val">${totals.in_progress}</span></div>
+                        <div class="pl-item"><span class="pl-dot" style="background:var(--oaf-kakamega)"></span>Pending confirm <span class="pl-val">${totals.resolved_pending}</span></div>
+                        <div class="pl-item"><span class="pl-dot" style="background:var(--oaf-crimson)"></span>Critical (24h+) <span class="pl-val">${totals.critical_overdue}</span></div>
+                    </div>
+                </div>
+                <div class="pulse-bar">
+                    <div class="pulse-seg" style="width:${pct(totals.open)}%; background:#00A8AB;"></div>
+                    <div class="pulse-seg" style="width:${pct(totals.in_progress)}%; background:var(--oaf-binzari);"></div>
+                    <div class="pulse-seg" style="width:${pct(totals.resolved_pending)}%; background:var(--oaf-kakamega);"></div>
+                    <div class="pulse-seg" style="width:${pct(totals.critical_overdue)}%; background:var(--oaf-crimson);"></div>
+                </div>
+                <div class="pulse-scale"><span>0</span><span>${totals.overdue} overdue of ${total} · ${overduePct}% breaching SLA</span><span>${total}</span></div>`;
+        }
+
+        function renderCategoryBreakdown() {
+            const data = (AppState.dashboard && AppState.dashboard.categories) || [];
+            const container = document.getElementById('dashboard-category-grid');
+            if (!data.length) { container.innerHTML = `<div class="p-6 text-center text-xs" style="color:var(--ink-soft);">No category data yet.</div>`; return; }
+
+            const rows = data.map(c => {
+                const total = (Number(c.open)||0) + (Number(c.in_progress)||0) + (Number(c.resolved_pending)||0);
+                const load = total > 0 ? Math.round(((Number(c.overdue)||0) / total) * 100) : 0;
+                const dotClass = Number(c.critical_overdue) > 0 ? 'crimson' : (Number(c.overdue) > 0 ? 'amber' : 'signal');
+                const badge = Number(c.critical_overdue) > 0
+                    ? `<span class="badge crimson">${c.overdue}</span>`
+                    : (Number(c.overdue) > 0 ? `<span class="badge amber">${c.overdue}</span>` : `<span class="badge slate">0</span>`);
+                return `
+                    <tr>
+                        <td><span class="dot ${dotClass}"></span><span style="font-weight:600;">${c.category_label}</span></td>
+                        <td class="num">${c.open}</td>
+                        <td class="num">${c.in_progress}</td>
+                        <td class="num">${c.resolved_pending}</td>
+                        <td class="num">${badge}</td>
+                        <td><span class="mini-bar-track"><span class="mini-bar-fill" style="width:${load}%; background:${dotClass === 'crimson' ? 'var(--oaf-crimson)' : (dotClass === 'amber' ? 'var(--oaf-binzari)' : 'var(--oaf-kakamega)')};"></span></span><span class="mono" style="font-size:11px;color:var(--ink-soft);">${load}%</span></td>
+                    </tr>`;
+            }).join('');
+
+            container.innerHTML = `
+                <table class="dense-table">
+                    <thead><tr><th>Category</th><th class="num">Open</th><th class="num">In progress</th><th class="num">Pending</th><th class="num">Overdue</th><th>Load</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>`;
+        }
+
+        function renderSlaBreaches() {
+            const list = (AppState.slaBreaches && AppState.slaBreaches.tickets) || [];
+            const container = document.getElementById('dashboard-sla-list');
+            if (!list.length) { container.innerHTML = `<p class="text-xs text-center py-4" style="color:var(--ink-soft);">No SLA breaches right now.</p>`; return; }
+
+            const rows = list.map(t => {
+                const hrs = Math.round(Number(t.hours_overdue) || 0);
+                const badgeClass = hrs > 24 ? 'crimson' : 'amber';
+                return `
+                    <tr>
+                        <td class="mono">${t.ticket_number}</td>
+                        <td>${t.site_name || ''}</td>
+                        <td style="color:var(--ink-soft);">${t.assigned_resolver_email || 'Unassigned'}</td>
+                        <td class="num"><span class="badge ${badgeClass}">${hrs}h</span></td>
+                    </tr>`;
+            }).join('');
+
+            container.innerHTML = `
+                <table class="dense-table">
+                    <thead><tr><th>Ticket</th><th>Site</th><th>Resolver</th><th class="num">Overdue</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>`;
+        }
+
+        function loadResolverPerformance() {
+            const dateFrom = document.getElementById('perf-date-from').value || null;
+            const dateTo = document.getElementById('perf-date-to').value || null;
+            document.getElementById('dashboard-resolver-table').innerHTML = renderListSkeleton();
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) { AppState.resolverPerformance = response.data; renderResolverPerformance(response.data.resolvers || []); }
+                    else showToast("Failed to load resolver performance: " + response.error);
+                })
+                .withFailureHandler((err) => showToast("Failed to load resolver performance: " + err.message))
+                .getResolverPerformance(dateFrom, dateTo);
+        }
+
+        function renderResolverPerformance(rows) {
+            const container = document.getElementById('dashboard-resolver-table');
+            if (!rows || !rows.length) { container.innerHTML = `<p class="text-xs text-center py-4" style="color:var(--ink-soft);">No resolver data for this period.</p>`; return; }
+            const maxResolved = Math.max(...rows.map(r => Number(r.tickets_resolved) || 0), 1);
+
+            const trs = rows.map(r => {
+                const barPct = Math.round(((Number(r.tickets_resolved)||0) / maxResolved) * 100);
+                const overdueCell = Number(r.currently_overdue) > 0 ? `<span class="badge crimson">${r.currently_overdue}</span>` : r.currently_overdue;
+                return `
+                    <tr>
+                        <td style="font-weight:600;">${r.resolver_name}</td>
+                        <td class="num"><span class="mini-bar-track" style="width:44px;"><span class="mini-bar-fill" style="width:${barPct}%;"></span></span><span class="mono">${r.tickets_resolved}</span></td>
+                        <td class="num mono">${r.avg_resolution_hours ? Number(r.avg_resolution_hours).toFixed(1) + 'h' : '--'}</td>
+                        <td class="num mono">${r.currently_open}</td>
+                        <td class="num">${overdueCell}</td>
+                    </tr>`;
+            }).join('');
+
+            container.innerHTML = `
+                <table class="dense-table">
+                    <thead><tr><th>Resolver</th><th class="num">Resolved</th><th class="num">Avg hours</th><th class="num">Open now</th><th class="num">Overdue now</th></tr></thead>
+                    <tbody>${trs}</tbody>
+                </table>`;
+        }
+
+        function handleExportHistory() {
+            const dateFrom = document.getElementById('perf-date-from').value || null;
+            const dateTo = document.getElementById('perf-date-to').value || null;
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (!response.success) { showToast("Export failed: " + response.error); return; }
+                    downloadCsv(response.data, `ticket_history_${dateFrom || 'this-month'}_to_${dateTo || 'now'}.csv`);
+                })
+                .withFailureHandler((err) => showToast("Export failed: " + err.message))
+                .exportTicketHistory(dateFrom, dateTo);
+        }
+
+        function downloadCsv(rows, filename) {
+            if (!rows || !rows.length) { showToast("Nothing to export for this range."); return; }
+            const headers = Object.keys(rows[0]);
+            const lines = [headers.join(',')].concat(rows.map(r => headers.map(h => `"${String(r[h] ?? '').replace(/"/g, '""')}"`).join(',')));
+            const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename; a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function prettifyKey(key) {
+            return (key || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        }
+
+        // ==================== ADMIN ====================
+        function switchAdminTab(tab) {
+            AppState.adminTab = tab;
+            ['categories', 'resolvers', 'managers', 'admins', 'audit'].forEach(t => {
+                document.getElementById(`admin-panel-${t}`).classList.toggle('hidden', t !== tab);
+                document.getElementById(`admintab-${t}`).classList.toggle('admintab-active', t === tab);
+            });
+            if (tab === 'categories') loadAdminCategories();
+            if (tab === 'resolvers') loadAdminResolvers();
+            if (tab === 'managers') loadAdminManagers();
+            if (tab === 'admins') loadAdminAdmins();
+            if (tab === 'audit') loadAuditLog();
+        }
+
+        function ensureAdminCategoriesLoaded(callback) {
+            if (AppState.adminCategories) { callback(); return; }
+            google.script.run
+                .withSuccessHandler((response) => { AppState.adminCategories = response.success ? response.data : []; callback(); })
+                .withFailureHandler(() => { AppState.adminCategories = []; callback(); })
+                .adminListCategories();
+        }
+
+        // ---- Categories ----
+        function loadAdminCategories() {
+            document.getElementById('admin-category-list').innerHTML = renderListSkeleton();
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) { AppState.adminCategories = response.data; renderAdminCategoryList(); }
+                    else showToast("Failed to load categories: " + response.error);
+                })
+                .withFailureHandler((err) => showToast("Failed to load categories: " + err.message))
+                .adminListCategories();
+        }
+
+        function renderAdminCategoryList() {
+            const container = document.getElementById('admin-category-list');
+            const list = AppState.adminCategories || [];
+            if (!list.length) { container.innerHTML = `<div class="p-4 text-xs text-center" style="color:var(--ink-soft);">No categories yet.</div>`; return; }
+            container.innerHTML = list.map(c => `
+                <div class="p-3 cursor-pointer" style="border-bottom:1px solid #EEEFEA; ${AppState.selectedAdminCategoryId === c.id ? 'background:var(--signal-bg);' : ''}" onclick="selectAdminCategory(${c.id})">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-semibold">${c.label}</span>
+                        <span class="toggle-pill ${c.is_active ? 'on' : 'off'}">${c.is_active ? 'Active' : 'Paused'}</span>
+                    </div>
+                    <div class="mono" style="font-size:10px; color:var(--ink-soft); margin-top:2px;">${c.code} · ${c.ticket_prefix} · SLA ${c.sla_hours}h</div>
+                </div>`).join('');
+        }
+
+        function showNewCategoryForm() {
+            AppState.selectedAdminCategoryId = null;
+            renderAdminCategoryList();
+            document.getElementById('admin-category-detail').innerHTML = renderCategoryForm(null);
+        }
+
+        function selectAdminCategory(categoryId) {
+            AppState.selectedAdminCategoryId = categoryId;
+            renderAdminCategoryList();
+            const category = AppState.adminCategories.find(c => c.id === categoryId);
+            document.getElementById('admin-category-detail').innerHTML = renderCategoryForm(category) + `<div id="admin-category-fields-section" class="mt-6"></div>`;
+            loadAdminCategoryFields(categoryId);
+        }
+
+        function renderCategoryForm(category) {
+            const isNew = !category;
+            return `
+                <div class="card p-5">
+                    <h3 class="text-sm font-bold mb-3">${isNew ? 'New Category' : 'Edit Category'}</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="form-label">Code</label><input id="cat-form-code" class="form-input" value="${category ? category.code : ''}" ${isNew ? '' : 'disabled'} placeholder="e.g. REFUND"></div>
+                        <div><label class="form-label">Ticket Prefix</label><input id="cat-form-prefix" class="form-input" value="${category ? category.ticket_prefix : ''}" ${isNew ? '' : 'disabled'} placeholder="e.g. BO-REF"></div>
+                        <div class="col-span-2"><label class="form-label">Label</label><input id="cat-form-label" class="form-input" value="${category ? category.label : ''}" placeholder="e.g. Refund"></div>
+                        <div><label class="form-label">SLA (hours)</label><input id="cat-form-sla" type="number" class="form-input" value="${category ? category.sla_hours : 48}"></div>
+                        <div><label class="form-label">Sort Order</label><input id="cat-form-sort" type="number" class="form-input" value="${category ? category.sort_order : ((AppState.adminCategories||[]).length + 1)}"></div>
+                        ${!isNew ? `<div class="col-span-2 flex items-center gap-2 mt-1"><input type="checkbox" id="cat-form-active" ${category.is_active ? 'checked' : ''}><label for="cat-form-active" class="text-xs font-semibold">Active (uncheck to pause this category)</label></div>` : ''}
+                    </div>
+                    <button onclick="handleSaveCategory(${isNew ? 'null' : category.id})" class="btn btn-primary mt-4">${isNew ? 'Create Category' : 'Save Changes'}</button>
+                </div>`;
+        }
+
+        function handleSaveCategory(categoryId) {
+            const isNew = categoryId === null;
+            const payload = {
+                label: document.getElementById('cat-form-label').value.trim(),
+                sla_hours: Number(document.getElementById('cat-form-sla').value),
+                sort_order: Number(document.getElementById('cat-form-sort').value)
+            };
+            if (isNew) {
+                payload.code = document.getElementById('cat-form-code').value.trim().toUpperCase();
+                payload.ticket_prefix = document.getElementById('cat-form-prefix').value.trim().toUpperCase();
+                if (!payload.code || !payload.ticket_prefix || !payload.label) { showToast("Code, prefix, and label are required."); return; }
+            } else {
+                payload.category_id = categoryId;
+                payload.is_active = document.getElementById('cat-form-active').checked;
+            }
+
+            const fn = isNew ? 'adminCreateCategory' : 'adminUpdateCategory';
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) {
+                        showToast(isNew ? "Category created." : "Category updated.");
+                        loadAdminCategories();
+                        if (isNew) { AppState.selectedAdminCategoryId = null; document.getElementById('admin-category-detail').innerHTML = `<div class="card p-6 text-center text-sm" style="color:var(--ink-soft);">Select a category, or add a new one.</div>`; }
+                    } else {
+                        showToast("Couldn't save category: " + response.error);
+                    }
+                })
+                .withFailureHandler((err) => showToast("Couldn't save category: " + err.message))
+                [fn](payload);
+        }
+
+        // ---- Category Fields ----
+        function loadAdminCategoryFields(categoryId) {
+            const container = document.getElementById('admin-category-fields-section');
+            if (!container) return;
+            container.innerHTML = renderListSkeleton();
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) { AppState.adminCategoryFields = response.data; renderAdminCategoryFields(categoryId); }
+                    else showToast("Failed to load fields: " + response.error);
+                })
+                .withFailureHandler((err) => showToast("Failed to load fields: " + err.message))
+                .adminListCategoryFields(categoryId);
+        }
+
+        function renderAdminCategoryFields(categoryId) {
+            const container = document.getElementById('admin-category-fields-section');
+            const fields = AppState.adminCategoryFields || [];
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-2">
+                    <span class="fact-label" style="margin-bottom:0;">Fields</span>
+                    <button onclick="showFieldForm(${categoryId}, null)" class="link-btn">+ Add Field</button>
+                </div>
+                <div id="admin-field-form-container"></div>
+                <div class="table-card">
+                    <table class="dense-table">
+                        <thead><tr><th>Label</th><th>Key</th><th>Type</th><th>Flags</th><th></th></tr></thead>
+                        <tbody>
+                            ${fields.length ? fields.map(f => `
+                                <tr>
+                                    <td class="font-semibold">${f.label}</td>
+                                    <td class="mono" style="font-size:11px; color:var(--ink-soft);">${f.field_key}</td>
+                                    <td>${f.field_type}</td>
+                                    <td style="color:var(--ink-soft); font-size:11px;">${[f.is_required ? 'required' : null, f.is_locked ? 'locked' : null, f.depends_on_field_key ? 'conditional' : null].filter(Boolean).join(', ') || '--'}</td>
+                                    <td>
+                                        <button onclick="showFieldForm(${categoryId}, ${f.id})" class="link-btn">Edit</button>
+                                        <button onclick="handleDeleteField(${f.id}, ${categoryId})" class="link-btn" style="color:var(--oaf-crimson); margin-left:10px;">Delete</button>
+                                    </td>
+                                </tr>`).join('') : `<tr><td colspan="5" class="text-center" style="color:var(--ink-soft);">No fields yet.</td></tr>`}
+                        </tbody>
+                    </table>
+                </div>`;
+        }
+
+        function showFieldForm(categoryId, fieldId) {
+            const field = fieldId ? AppState.adminCategoryFields.find(f => f.id === fieldId) : null;
+            document.getElementById('admin-field-form-container').innerHTML = renderFieldForm(categoryId, field);
+        }
+
+        function renderFieldForm(categoryId, field) {
+            const isNew = !field;
+            return `
+                <div class="card p-4 mb-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="form-label">Field Key</label><input id="field-form-key" class="form-input" value="${field ? field.field_key : ''}" ${isNew ? '' : 'disabled'} placeholder="e.g. transaction_id"></div>
+                        <div><label class="form-label">Label</label><input id="field-form-label" class="form-input" value="${field ? field.label : ''}" placeholder="e.g. Transaction ID"></div>
+                        <div><label class="form-label">Field Type</label>
+                            <select id="field-form-type" class="form-input">${['text','textarea','number','date','select','checkbox'].map(t => `<option value="${t}" ${field && field.field_type === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+                        </div>
+                        <div><label class="form-label">Options Source</label>
+                            <select id="field-form-options-source" class="form-input">
+                                <option value="">Static / none</option>
+                                <option value="pod_district" ${field && field.options_source === 'pod_district' ? 'selected' : ''}>pod_district</option>
+                                <option value="pod_site" ${field && field.options_source === 'pod_site' ? 'selected' : ''}>pod_site</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2"><label class="form-label">Static Options (JSON array, for select fields)</label><input id="field-form-options" class="form-input" value='${field && field.options ? JSON.stringify(field.options) : ''}' placeholder='["Yes","No"]'></div>
+                        <div><label class="form-label">Sort Order</label><input id="field-form-sort" type="number" class="form-input" value="${field ? field.sort_order : 1}"></div>
+                        <div><label class="form-label">Filter By Field Key</label><input id="field-form-filterby" class="form-input" value="${field && field.filter_by_field_key ? field.filter_by_field_key : ''}" placeholder="e.g. district's field_key"></div>
+                        <div><label class="form-label">Depends On Field Key</label><input id="field-form-dependskey" class="form-input" value="${field && field.depends_on_field_key ? field.depends_on_field_key : ''}"></div>
+                        <div><label class="form-label">Depends On Value</label><input id="field-form-dependsvalue" class="form-input" value="${field && field.depends_on_value ? field.depends_on_value : ''}"></div>
+                        <div class="col-span-2 flex gap-4 mt-1">
+                            <label class="text-xs font-semibold flex items-center gap-1.5"><input type="checkbox" id="field-form-required" ${!field || field.is_required ? 'checked' : ''}> Required</label>
+                            <label class="text-xs font-semibold flex items-center gap-1.5"><input type="checkbox" id="field-form-locked" ${field && field.is_locked ? 'checked' : ''}> System-locked (auto-filled)</label>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 mt-3">
+                        <button onclick="handleSaveField(${categoryId}, ${isNew ? 'null' : field.id})" class="btn btn-primary">${isNew ? 'Add Field' : 'Save Field'}</button>
+                        <button onclick="document.getElementById('admin-field-form-container').innerHTML=''" class="btn btn-outline">Cancel</button>
+                    </div>
+                </div>`;
+        }
+
+        function handleSaveField(categoryId, fieldId) {
+            const isNew = fieldId === null;
+            let options = null;
+            const rawOptions = document.getElementById('field-form-options').value.trim();
+            if (rawOptions) {
+                try { options = JSON.parse(rawOptions); } catch (e) { showToast('Options must be valid JSON, e.g. ["Yes","No"]'); return; }
+            }
+
+            const payload = {
+                label: document.getElementById('field-form-label').value.trim(),
+                field_type: document.getElementById('field-form-type').value,
+                is_required: document.getElementById('field-form-required').checked,
+                options: options,
+                sort_order: Number(document.getElementById('field-form-sort').value),
+                depends_on_field_key: document.getElementById('field-form-dependskey').value.trim() || null,
+                depends_on_value: document.getElementById('field-form-dependsvalue').value.trim() || null,
+                options_source: document.getElementById('field-form-options-source').value || null,
+                filter_by_field_key: document.getElementById('field-form-filterby').value.trim() || null,
+                is_locked: document.getElementById('field-form-locked').checked
+            };
+
+            if (isNew) {
+                payload.category_id = categoryId;
+                payload.field_key = document.getElementById('field-form-key').value.trim();
+                if (!payload.field_key || !payload.label) { showToast("Field key and label are required."); return; }
+            } else {
+                payload.field_id = fieldId;
+            }
+
+            const fn = isNew ? 'adminCreateCategoryField' : 'adminUpdateCategoryField';
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) { showToast(isNew ? "Field added." : "Field updated."); document.getElementById('admin-field-form-container').innerHTML = ''; loadAdminCategoryFields(categoryId); }
+                    else showToast("Couldn't save field: " + response.error);
+                })
+                .withFailureHandler((err) => showToast("Couldn't save field: " + err.message))
+                [fn](payload);
+        }
+
+        function handleDeleteField(fieldId, categoryId) {
+            if (!confirm("Delete this field? This can't be undone.")) return;
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) { showToast("Field deleted."); loadAdminCategoryFields(categoryId); }
+                    else showToast("Couldn't delete field: " + response.error);
+                })
+                .withFailureHandler((err) => showToast("Couldn't delete field: " + err.message))
+                .adminDeleteCategoryField(fieldId);
+        }
+
+        // ---- Resolvers ----
+        function loadAdminResolvers() {
+            document.getElementById('admin-resolver-list').innerHTML = renderListSkeleton();
+            ensureAdminCategoriesLoaded(() => {
+                google.script.run
+                    .withSuccessHandler((response) => {
+                        if (response.success) { AppState.adminResolvers = response.data; renderAdminResolverList(); }
+                        else showToast("Failed to load resolvers: " + response.error);
+                    })
+                    .withFailureHandler((err) => showToast("Failed to load resolvers: " + err.message))
+                    .adminListResolvers();
+            });
+        }
+
+        function renderAdminResolverList() {
+            const container = document.getElementById('admin-resolver-list');
+            const list = AppState.adminResolvers || [];
+            if (!list.length) { container.innerHTML = `<div class="p-4 text-xs text-center" style="color:var(--ink-soft);">No resolvers yet.</div>`; return; }
+            container.innerHTML = `
+                <table class="dense-table">
+                    <thead><tr><th>Resolver</th><th>Categories</th><th>Status</th><th></th></tr></thead>
+                    <tbody>
+                        ${list.map(r => {
+                            const catLabels = (r.category_ids || []).map(id => {
+                                const cat = (AppState.adminCategories || []).find(c => c.id === id);
+                                return cat ? cat.label : ('#' + id);
+                            });
+                            const initials = (r.name || '').split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('') || '--';
+                            return `
+                                <tr>
+                                    <td><div class="person-cell"><span class="avatar-init">${initials}</span>${r.name}</div></td>
+                                    <td style="color:var(--ink-soft);">${catLabels.join(', ') || 'No categories assigned'}</td>
+                                    <td><span class="toggle-pill ${r.is_active ? 'on' : 'off'}">${r.is_active ? 'Active' : 'Inactive'}</span></td>
+                                    <td><button onclick="showEditResolverForm('${r.email}')" class="link-btn">Edit</button></td>
+                                </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>`;
+        }
+
+        function showNewResolverForm() {
+            document.getElementById('admin-resolver-form-container').innerHTML = renderResolverForm(null);
+        }
+
+        function showEditResolverForm(email) {
+            const resolver = AppState.adminResolvers.find(r => r.email === email);
+            document.getElementById('admin-resolver-form-container').innerHTML = renderResolverForm(resolver);
+        }
+
+        function renderResolverForm(resolver) {
+            const isNew = !resolver;
+            const categories = AppState.adminCategories || [];
+            const selectedIds = resolver ? (resolver.category_ids || []) : [];
+            return `
+                <div class="card p-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="form-label">Email</label><input id="resolver-form-email" class="form-input" value="${resolver ? resolver.email : ''}" ${isNew ? '' : 'disabled'} placeholder="name@oneacrefund.org"></div>
+                        <div><label class="form-label">Name</label><input id="resolver-form-name" class="form-input" value="${resolver ? resolver.name : ''}"></div>
+                    </div>
+                    <div class="mt-3">
+                        <label class="form-label">Category Access</label>
+                        <div class="flex flex-wrap gap-3">
+                            ${categories.map(c => `<label class="text-xs font-semibold flex items-center gap-1.5"><input type="checkbox" class="resolver-form-category" value="${c.id}" ${selectedIds.includes(c.id) ? 'checked' : ''}> ${c.label}</label>`).join('')}
+                        </div>
+                    </div>
+                    ${!isNew ? `<label class="text-xs font-semibold flex items-center gap-1.5 mt-3"><input type="checkbox" id="resolver-form-active" ${resolver.is_active ? 'checked' : ''}> Active</label>` : ''}
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="handleSaveResolver('${isNew ? '' : resolver.email}')" class="btn btn-primary">${isNew ? 'Add Resolver' : 'Save Changes'}</button>
+                        <button onclick="document.getElementById('admin-resolver-form-container').innerHTML=''" class="btn btn-outline">Cancel</button>
+                    </div>
+                </div>`;
+        }
+
+        function handleSaveResolver(existingEmail) {
+            const isNew = !existingEmail;
+            const email = isNew ? document.getElementById('resolver-form-email').value.trim().toLowerCase() : existingEmail;
+            const name = document.getElementById('resolver-form-name').value.trim();
+            const categoryIds = Array.from(document.querySelectorAll('.resolver-form-category:checked')).map(el => Number(el.value));
+            if (!email || !name) { showToast("Email and name are required."); return; }
+
+            if (isNew) {
+                google.script.run
+                    .withSuccessHandler((response) => {
+                        if (response.success) { showToast("Resolver added."); document.getElementById('admin-resolver-form-container').innerHTML=''; loadAdminResolvers(); }
+                        else showToast("Couldn't add resolver: " + response.error);
+                    })
+                    .withFailureHandler((err) => showToast("Couldn't add resolver: " + err.message))
+                    .adminAddResolver({ email, name, category_ids: categoryIds });
+            } else {
+                const isActive = document.getElementById('resolver-form-active').checked;
+                google.script.run
+                    .withSuccessHandler((response) => {
+                        if (!response.success) { showToast("Couldn't update resolver: " + response.error); return; }
+                        google.script.run
+                            .withSuccessHandler((response2) => {
+                                if (response2.success) { showToast("Resolver updated."); document.getElementById('admin-resolver-form-container').innerHTML=''; loadAdminResolvers(); }
+                                else showToast("Couldn't update categories: " + response2.error);
+                            })
+                            .withFailureHandler((err) => showToast("Couldn't update categories: " + err.message))
+                            .adminSetResolverCategories(email, categoryIds);
+                    })
+                    .withFailureHandler((err) => showToast("Couldn't update resolver: " + err.message))
+                    .adminUpdateResolver({ email, name, is_active: isActive });
+            }
+        }
+
+        // ---- Managers & Admins (shared pattern) ----
+        function loadAdminManagers() {
+            document.getElementById('admin-manager-list').innerHTML = renderListSkeleton();
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) { AppState.adminManagers = response.data; renderRoleList('manager'); }
+                    else showToast("Failed to load managers: " + response.error);
+                })
+                .withFailureHandler((err) => showToast("Failed to load managers: " + err.message))
+                .adminListManagers();
+        }
+
+        function loadAdminAdmins() {
+            document.getElementById('admin-admin-list').innerHTML = renderListSkeleton();
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) { AppState.adminAdmins = response.data; renderRoleList('admin'); }
+                    else showToast("Failed to load admins: " + response.error);
+                })
+                .withFailureHandler((err) => showToast("Failed to load admins: " + err.message))
+                .adminListAdmins();
+        }
+
+        function renderRoleList(roleType) {
+            const list = roleType === 'manager' ? (AppState.adminManagers || []) : (AppState.adminAdmins || []);
+            const container = document.getElementById(`admin-${roleType}-list`);
+            if (!list.length) { container.innerHTML = `<div class="p-4 text-xs text-center" style="color:var(--ink-soft);">None yet.</div>`; return; }
+            container.innerHTML = `
+                <table class="dense-table">
+                    <thead><tr><th>Name</th><th>Email</th><th>Status</th><th></th></tr></thead>
+                    <tbody>
+                        ${list.map(r => `
+                            <tr>
+                                <td class="font-semibold">${r.name}</td>
+                                <td class="mono" style="font-size:11px; color:var(--ink-soft);">${r.email}</td>
+                                <td><span class="toggle-pill ${r.is_active ? 'on' : 'off'}">${r.is_active ? 'Active' : 'Inactive'}</span></td>
+                                <td><button onclick="showEditRoleForm('${roleType}', '${r.email}')" class="link-btn">Edit</button></td>
+                            </tr>`).join('')}
+                    </tbody>
+                </table>`;
+        }
+
+        function showNewRoleForm(roleType) {
+            document.getElementById(`admin-${roleType}-form-container`).innerHTML = renderRoleForm(roleType, null);
+        }
+
+        function showEditRoleForm(roleType, email) {
+            const list = roleType === 'manager' ? AppState.adminManagers : AppState.adminAdmins;
+            const record = list.find(r => r.email === email);
+            document.getElementById(`admin-${roleType}-form-container`).innerHTML = renderRoleForm(roleType, record);
+        }
+
+        function renderRoleForm(roleType, record) {
+            const isNew = !record;
+            return `
+                <div class="card p-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="form-label">Email</label><input id="role-form-email" class="form-input" value="${record ? record.email : ''}" ${isNew ? '' : 'disabled'} placeholder="name@oneacrefund.org"></div>
+                        <div><label class="form-label">Name</label><input id="role-form-name" class="form-input" value="${record ? record.name : ''}"></div>
+                    </div>
+                    ${!isNew ? `<label class="text-xs font-semibold flex items-center gap-1.5 mt-3"><input type="checkbox" id="role-form-active" ${record.is_active ? 'checked' : ''}> Active</label>` : ''}
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="handleSaveRole('${roleType}', '${isNew ? '' : record.email}')" class="btn btn-primary">${isNew ? 'Add' : 'Save Changes'}</button>
+                        <button onclick="document.getElementById('admin-${roleType}-form-container').innerHTML=''" class="btn btn-outline">Cancel</button>
+                    </div>
+                </div>`;
+        }
+
+        function handleSaveRole(roleType, existingEmail) {
+            const isNew = !existingEmail;
+            const email = isNew ? document.getElementById('role-form-email').value.trim().toLowerCase() : existingEmail;
+            const name = document.getElementById('role-form-name').value.trim();
+            if (!email || !name) { showToast("Email and name are required."); return; }
+
+            const addFn = roleType === 'manager' ? 'adminAddManager' : 'adminAddAdmin';
+            const updateFn = roleType === 'manager' ? 'adminUpdateManager' : 'adminUpdateAdmin';
+            const reload = roleType === 'manager' ? loadAdminManagers : loadAdminAdmins;
+
+            if (isNew) {
+                google.script.run
+                    .withSuccessHandler((response) => {
+                        if (response.success) { showToast("Added."); document.getElementById(`admin-${roleType}-form-container`).innerHTML=''; reload(); }
+                        else showToast("Couldn't save: " + response.error);
+                    })
+                    .withFailureHandler((err) => showToast("Couldn't save: " + err.message))
+                    [addFn]({ email, name });
+            } else {
+                const isActive = document.getElementById('role-form-active').checked;
+                google.script.run
+                    .withSuccessHandler((response) => {
+                        if (response.success) { showToast("Updated."); document.getElementById(`admin-${roleType}-form-container`).innerHTML=''; reload(); }
+                        else showToast("Couldn't save: " + response.error);
+                    })
+                    .withFailureHandler((err) => showToast("Couldn't save: " + err.message))
+                    [updateFn]({ email, name, is_active: isActive });
+            }
+        }
+
+        // ---- Audit Log ----
+        function loadAuditLog() {
+            const dateFrom = document.getElementById('audit-date-from').value || null;
+            const dateTo = document.getElementById('audit-date-to').value || null;
+            document.getElementById('admin-audit-list').innerHTML = renderListSkeleton();
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) renderAuditLog(response.data);
+                    else showToast("Failed to load audit log: " + response.error);
+                })
+                .withFailureHandler((err) => showToast("Failed to load audit log: " + err.message))
+                .adminGetAuditLog(dateFrom, dateTo, null);
+        }
+
+        function timeAgo(iso) {
+            if (!iso) return '--';
+            const diffMs = new Date() - new Date(iso);
+            const mins = Math.floor(diffMs / 60000);
+            if (mins < 60) return mins + 'm ago';
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return hrs + 'h ago';
+            return Math.floor(hrs / 24) + 'd ago';
+        }
+
+        function renderAuditLog(rows) {
+            const container = document.getElementById('admin-audit-list');
+            if (!rows || !rows.length) { container.innerHTML = `<div class="p-4 text-xs text-center" style="color:var(--ink-soft);">No admin activity in this period.</div>`; return; }
+            container.innerHTML = `
+                <table class="dense-table">
+                    <thead><tr><th>Action</th><th>Target</th><th>Actor</th><th class="num">When</th></tr></thead>
+                    <tbody>
+                        ${rows.map(r => `
+                            <tr>
+                                <td>${prettifyKey(r.action)}</td>
+                                <td class="mono">${r.target_type || '--'}${r.target_id ? ' ' + r.target_id : ''}</td>
+                                <td style="color:var(--ink-soft);">${r.actor_email}</td>
+                                <td class="num mono" style="color:var(--ink-soft);">${timeAgo(r.created_at)}</td>
+                            </tr>`).join('')}
+                    </tbody>
+                </table>`;
+        }
+
+        // ==================== ACCOUNT LOOKUP (reusable) ====================
+        // Generic account-number lookup widget. Renders an input + button
+        // into any container, and calls opts.onFound(accountData) with the
+        // raw response from get_farmer_account on a successful match. Not
+        // tied to Order Adjustment specifically — any future field that
+        // would benefit from an account lookup can reuse this the same way.
+        const accountLookupCallbacks = {};
+
+        function renderAccountLookupControl(containerId, opts) {
+            opts = opts || {};
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            accountLookupCallbacks[containerId] = opts;
+
+            container.innerHTML = `
+                <div class="flex gap-2">
+                    <input type="text" id="${containerId}-input" class="form-input" placeholder="${opts.placeholder || 'Enter account number...'}">
+                    <button type="button" onclick="handleAccountLookup('${containerId}')" class="btn btn-outline">Look Up</button>
+                </div>
+                <div id="${containerId}-result" class="mt-2"></div>`;
+        }
+
+        function handleAccountLookup(containerId) {
+            const input = document.getElementById(`${containerId}-input`);
+            const resultDiv = document.getElementById(`${containerId}-result`);
+            const accountNumber = input.value.trim();
+            if (!accountNumber) { showToast("Enter an account number first."); return; }
+
+            resultDiv.innerHTML = `<div class="text-xs" style="color:var(--ink-soft);">Looking up...</div>`;
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    const opts = accountLookupCallbacks[containerId] || {};
+                    if (response.success && response.data) {
+                        resultDiv.innerHTML = `<div class="text-xs" style="color:var(--oaf-kakamega); font-weight:600;">✓ Found: ${response.data.client_name || 'Account found'}</div>`;
+                        if (opts.onFound) opts.onFound(response.data);
+                    } else {
+                        resultDiv.innerHTML = `<div class="text-xs" style="color:var(--oaf-crimson);">No account found with that number.</div>`;
+                        if (opts.onError) opts.onError(response.error || 'Not found');
+                    }
+                })
+                .withFailureHandler((err) => {
+                    resultDiv.innerHTML = `<div class="text-xs" style="color:var(--oaf-crimson);">Lookup failed: ${err.message}</div>`;
+                    const opts = accountLookupCallbacks[containerId] || {};
+                    if (opts.onError) opts.onError(err.message);
+                })
+                .lookupFarmerAccount(accountNumber);
+        }
+
+        function formatProductsOrdered(productsJson) {
+            if (!productsJson || !productsJson.length) return 'No products registered';
+            return productsJson.map(p => `${p.item} (${p.qty})`).join(', ');
+        }
+
+        // ==================== CREATE TICKET (Hotline / Call Center) ====================
+
+        function loadCreateTicketView() {
+            if (AppState.ctCategories && AppState.ctPodStructure) {
+                renderCtCategoryOptions();
+                return;
+            }
+            document.getElementById('ct-category-select').innerHTML = `<option value="">-- Loading categories... --</option>`;
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) { AppState.ctCategories = response.data; renderCtCategoryOptions(); }
+                    else showToast("Failed to load categories: " + response.error);
+                })
+                .withFailureHandler((err) => showToast("Failed to load categories: " + err.message))
+                .getTicketCategoriesForIntake();
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) AppState.ctPodStructure = response.data;
+                    else showToast("Failed to load FO directory: " + response.error);
+                })
+                .withFailureHandler((err) => showToast("Failed to load FO directory: " + err.message))
+                .getPodStructureForIntake();
+        }
+
+        function renderCtCategoryOptions() {
+            const select = document.getElementById('ct-category-select');
+            if (!AppState.ctCategories || !AppState.ctCategories.length) {
+                select.innerHTML = `<option value="">No categories available</option>`;
+                return;
+            }
+            select.innerHTML = `<option value="">-- Choose Category --</option>` +
+                AppState.ctCategories.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+        }
+
+        // ---- FO lookup ----
+        let ctFoSearchTimer;
+        let ctFoSearchResults = [];
+
+        function onFoSearchInput() {
+            clearTimeout(ctFoSearchTimer);
+            ctFoSearchTimer = setTimeout(renderFoSearchResults, 200);
+        }
+
+        function renderFoSearchResults() {
+            const term = document.getElementById('ct-fo-search').value.trim().toLowerCase();
+            const container = document.getElementById('ct-fo-results');
+            if (!term || !AppState.ctPodStructure) { container.innerHTML = ''; ctFoSearchResults = []; return; }
+
+            ctFoSearchResults = AppState.ctPodStructure.filter(p =>
+                (p.field_officer && p.field_officer.toLowerCase().includes(term)) ||
+                (p.fo_email && p.fo_email.toLowerCase().includes(term))
+            ).slice(0, 15);
+
+            if (!ctFoSearchResults.length) {
+                container.innerHTML = `<div class="text-xs" style="color:var(--ink-soft); padding:6px 0;">No matches.</div>`;
+                return;
+            }
+
+            container.innerHTML = ctFoSearchResults.map((p, i) => `
+                <div class="p-2 cursor-pointer" style="border-bottom:1px solid #EEEFEA;" onclick="selectFO(${i})">
+                    <div class="text-sm font-semibold">${p.field_officer}</div>
+                    <div class="mono" style="font-size:11px; color:var(--ink-soft);">${p.fo_email} · ${p.site_name}</div>
+                </div>`).join('');
+        }
+
+        function selectFO(index) {
+            const p = ctFoSearchResults[index];
+            AppState.ctSelectedFO = p;
+            document.getElementById('ct-fo-selected-name').innerText = p.field_officer;
+            document.getElementById('ct-fo-selected-detail').innerText = `${p.fo_email} · ${p.site_name}`;
+            document.getElementById('ct-fo-selected').classList.remove('hidden');
+            document.getElementById('ct-fo-search-wrap').classList.add('hidden');
+        }
+
+        function clearSelectedFO() {
+            AppState.ctSelectedFO = null;
+            document.getElementById('ct-fo-selected').classList.add('hidden');
+            document.getElementById('ct-fo-search-wrap').classList.remove('hidden');
+            document.getElementById('ct-fo-search').value = '';
+            document.getElementById('ct-fo-results').innerHTML = '';
+        }
+
+        // ---- Dynamic category fields (same engine as FO Care, adapted for the console UI) ----
+        function onCtCategoryChange() {
+            const categoryId = Number(document.getElementById('ct-category-select').value);
+            AppState.ctSelectedCategoryId = categoryId || null;
+            // Hotline never supports the bulk-CSV flow, so is_bulk_request is
+            // forced false (not shown) rather than rendered as a checkbox.
+            AppState.ctFormValues = { is_bulk_request: false };
+            AppState.ctLookedUpFarmer = null;
+
+            const category = AppState.ctCategories.find(c => c.id === categoryId);
+            const allFields = category ? category.fields : [];
+            const fields = allFields.filter(f => f.field_key !== 'is_bulk_request');
+            const hasLockedFields = allFields.some(f => f.is_locked);
+
+            const noticeEl = document.getElementById('ct-locked-field-notice');
+            if (hasLockedFields) {
+                noticeEl.classList.remove('hidden');
+                noticeEl.style.background = 'var(--slate-bg)';
+                noticeEl.style.color = 'var(--ink)';
+                noticeEl.innerHTML = `
+                    <div class="fact-label" style="margin-bottom:6px;">Look up the farmer account to populate order details</div>
+                    <div id="ct-order-lookup"></div>`;
+                renderAccountLookupControl('ct-order-lookup', {
+                    placeholder: 'Enter account number...',
+                    onFound: (data) => {
+                        AppState.ctLookedUpFarmer = { account_number: data.account_number, name: data.client_name };
+                        AppState.ctFormValues['products_ordered'] = formatProductsOrdered(data.products_json);
+                        AppState.ctFormValues['total_credit'] = data.total_credit || 0;
+                        renderCtDynamicFields(fields);
+                    }
+                });
+            } else {
+                noticeEl.classList.add('hidden');
+                noticeEl.innerHTML = '';
+            }
+
+            renderCtDynamicFields(fields);
+        }
+
+        function renderCtDynamicFields(fields) {
+            const container = document.getElementById('ct-dynamic-fields');
+            if (!fields || !fields.length) { container.innerHTML = ''; return; }
+
+            fields.forEach(f => {
+                if (f.is_locked) {
+                    // Don't stomp a value a lookup just populated on re-render.
+                    if (AppState.ctFormValues[f.field_key] === undefined) {
+                        AppState.ctFormValues[f.field_key] = '';
+                    }
+                } else if (AppState.ctFormValues[f.field_key] === undefined) {
+                    AppState.ctFormValues[f.field_key] = f.field_type === 'checkbox' ? false : '';
+                }
+            });
+
+            container.innerHTML = fields.map(f => renderCtFieldHtml(f)).join('');
+
+            fields.forEach(f => {
+                if (f.is_locked) return;
+                const el = document.getElementById(`ct-field-${f.field_key}`);
+                if (!el) return;
+                const eventType = (f.field_type === 'checkbox' || f.field_type === 'select') ? 'change' : 'input';
+                el.addEventListener(eventType, () => {
+                    const value = f.field_type === 'checkbox' ? el.checked : el.value;
+                    AppState.ctFormValues[f.field_key] = value;
+                    fields.filter(sf => sf.filter_by_field_key === f.field_key).forEach(siteField => {
+                        populateCtSiteOptions(siteField, value);
+                    });
+                    updateCtFieldVisibility(fields);
+                });
+            });
+
+            updateCtFieldVisibility(fields);
+
+            fields.filter(f => f.options_source === 'pod_site' && f.filter_by_field_key).forEach(f => {
+                const districtValue = AppState.ctFormValues[f.filter_by_field_key];
+                if (districtValue) populateCtSiteOptions(f, districtValue);
+            });
+        }
+
+        function renderCtFieldHtml(f) {
+            const wrapperStyle = isCtFieldVisible(f) ? '' : 'style="display:none;"';
+            const requiredMark = f.is_required ? '<span style="color:var(--oaf-crimson);">*</span>' : '';
+
+            if (f.is_locked) {
+                const val = AppState.ctFormValues[f.field_key];
+                const isEmpty = (val === '' || val === undefined || val === null);
+                const displayVal = isEmpty ? 'Not available — look up the farmer account above' : val;
+                return `
+                    <div id="ct-wrapper-${f.field_key}" ${wrapperStyle}>
+                        <label class="form-label">${f.label} ${requiredMark}</label>
+                        <div class="form-input" style="background:#F7F7F3; color:${isEmpty ? 'var(--ink-soft)' : 'var(--ink)'};">${displayVal}</div>
+                    </div>`;
+            }
+
+            if (f.field_type === 'checkbox') {
+                return `
+                    <div id="ct-wrapper-${f.field_key}" ${wrapperStyle}>
+                        <label class="flex items-center gap-2 text-sm font-semibold">
+                            <input type="checkbox" id="ct-field-${f.field_key}" ${AppState.ctFormValues[f.field_key] ? 'checked' : ''}> ${f.label}
+                        </label>
+                    </div>`;
+            }
+
+            let inputHtml = '';
+            if (f.field_type === 'select') {
+                let optionsHtml = `<option value="">-- Select --</option>`;
+                if (f.options_source === 'pod_district') {
+                    const districts = [...new Set((AppState.ctPodStructure || []).map(p => p.district))].sort();
+                    optionsHtml += districts.map(d => `<option value="${d}">${d}</option>`).join('');
+                } else if (f.options_source !== 'pod_site' && f.options) {
+                    optionsHtml += f.options.map(o => `<option value="${o}">${o}</option>`).join('');
+                }
+                inputHtml = `<select id="ct-field-${f.field_key}" class="form-input">${optionsHtml}</select>`;
+            } else if (f.field_type === 'textarea') {
+                inputHtml = `<textarea id="ct-field-${f.field_key}" rows="2" class="form-input">${AppState.ctFormValues[f.field_key] || ''}</textarea>`;
+            } else {
+                const inputType = f.field_type === 'number' ? 'number' : (f.field_type === 'date' ? 'date' : 'text');
+                inputHtml = `<input type="${inputType}" id="ct-field-${f.field_key}" value="${AppState.ctFormValues[f.field_key] || ''}" class="form-input">`;
+            }
+
+            return `
+                <div id="ct-wrapper-${f.field_key}" ${wrapperStyle}>
+                    <label class="form-label">${f.label} ${requiredMark}</label>
+                    ${inputHtml}
+                </div>`;
+        }
+
+        function isCtFieldVisible(f) {
+            if (!f.depends_on_field_key) return true;
+            const dependValue = AppState.ctFormValues[f.depends_on_field_key];
+            const dependValueStr = typeof dependValue === 'boolean' ? String(dependValue) : (dependValue || '');
+            return dependValueStr === f.depends_on_value;
+        }
+
+        function updateCtFieldVisibility(fields) {
+            fields.forEach(f => {
+                const wrapper = document.getElementById(`ct-wrapper-${f.field_key}`);
+                if (wrapper) wrapper.style.display = isCtFieldVisible(f) ? '' : 'none';
+            });
+        }
+
+        function populateCtSiteOptions(siteField, districtValue) {
+            const select = document.getElementById(`ct-field-${siteField.field_key}`);
+            if (!select) return;
+            const sites = (AppState.ctPodStructure || [])
+                .filter(p => p.district === districtValue)
+                .sort((a, b) => a.site_name.localeCompare(b.site_name));
+            select.innerHTML = `<option value="">-- Select Site --</option>` +
+                sites.map(s => `<option value="${s.site_name}">${s.site_name}</option>`).join('');
+            AppState.ctFormValues[siteField.field_key] = '';
+        }
+
+        // ---- Link to existing ticket ----
+        let ctLinkSearchTimer;
+        let ctLinkSearchResults = [];
+
+        function onLinkSearchInput() {
+            clearTimeout(ctLinkSearchTimer);
+            ctLinkSearchTimer = setTimeout(runLinkSearch, 350);
+        }
+
+        function runLinkSearch() {
+            const term = document.getElementById('ct-link-search').value.trim();
+            const container = document.getElementById('ct-link-results');
+            if (!term) { container.innerHTML = ''; ctLinkSearchResults = []; return; }
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) { ctLinkSearchResults = response.data; renderLinkSearchResults(); }
+                    else showToast("Search failed: " + response.error);
+                })
+                .withFailureHandler((err) => showToast("Search failed: " + err.message))
+                .searchFoTickets(term);
+        }
+
+        function renderLinkSearchResults() {
+            const container = document.getElementById('ct-link-results');
+            if (!ctLinkSearchResults.length) {
+                container.innerHTML = `<div class="text-xs" style="color:var(--ink-soft); padding:6px 0;">No matches.</div>`;
+                return;
+            }
+            container.innerHTML = ctLinkSearchResults.map((t, i) => `
+                <div class="p-2 cursor-pointer" style="border-bottom:1px solid #EEEFEA;" onclick="selectLinkedTicket(${i})">
+                    <div class="mono text-sm font-semibold">${t.ticket_number}</div>
+                    <div style="font-size:11px; color:var(--ink-soft);">${t.category_label} · ${t.status_label} · ${t.fo_name}</div>
+                </div>`).join('');
+        }
+
+        function selectLinkedTicket(index) {
+            const t = ctLinkSearchResults[index];
+            AppState.ctLinkedTicket = t;
+            document.getElementById('ct-linked-ticket-number').innerText = `${t.ticket_number} — ${t.category_label}`;
+            document.getElementById('ct-linked-selected').classList.remove('hidden');
+            document.getElementById('ct-link-search-wrap').classList.add('hidden');
+        }
+
+        function clearLinkedTicket() {
+            AppState.ctLinkedTicket = null;
+            document.getElementById('ct-linked-selected').classList.add('hidden');
+            document.getElementById('ct-link-search-wrap').classList.remove('hidden');
+            document.getElementById('ct-link-search').value = '';
+            document.getElementById('ct-link-results').innerHTML = '';
+        }
+
+        // ---- FCR ----
+        function onFcrToggle() {
+            const checked = document.getElementById('ct-is-fcr').checked;
+            AppState.ctIsFcr = checked;
+            document.getElementById('ct-fcr-notes-wrap').classList.toggle('hidden', !checked);
+        }
+
+        // ---- Submit ----
+        function submitHotlineTicket() {
+            if (!AppState.ctSelectedFO) { showToast("Please select the Field Officer."); return; }
+            if (!AppState.ctSelectedCategoryId) { showToast("Please select a ticket category."); return; }
+
+            const category = AppState.ctCategories.find(c => c.id === AppState.ctSelectedCategoryId);
+            const fields = category.fields.filter(f => f.field_key !== 'is_bulk_request');
+            const hasLockedFields = fields.some(f => f.is_locked);
+
+            if (hasLockedFields && !AppState.ctLookedUpFarmer) {
+                showToast("Please look up the farmer account before submitting.");
+                return;
+            }
+
+            for (const f of fields) {
+                if (!f.is_required || f.is_locked || !isCtFieldVisible(f)) continue;
+                const value = AppState.ctFormValues[f.field_key];
+                if (value === '' || value === undefined || value === null) {
+                    showToast(`Please fill in: ${f.label}`);
+                    return;
+                }
+            }
+
+            const description = document.getElementById('ct-description').value.trim();
+            if (!description) { showToast("Please describe what the FO called about."); return; }
+
+            const isFcr = document.getElementById('ct-is-fcr').checked;
+            let resolutionNotes = '';
+            if (isFcr) {
+                resolutionNotes = document.getElementById('ct-fcr-notes').value.trim();
+                if (!resolutionNotes) { showToast("Please add resolution notes for a first-call resolution."); return; }
+            }
+
+            let customFields = {};
+            fields.forEach(f => {
+                if (isCtFieldVisible(f)) customFields[f.field_key] = AppState.ctFormValues[f.field_key];
+            });
+
+            // Same auto-derive pattern as the FO Care app — Refund/Reversal
+            // don't have a dedicated top-level farmer field in this flow either.
+            const FARMER_CONTEXT_SOURCE = {
+                'REFUND':   { accountKey: 'source_oaf_account', nameKey: 'farmer_name' },
+                'REVERSAL': { accountKey: 'receiving_account',  nameKey: 'receiving_farmer_name' }
+            };
+            let farmerAccount = '';
+            let farmerName = '';
+            const contextSource = FARMER_CONTEXT_SOURCE[category.code];
+            if (contextSource) {
+                farmerAccount = customFields[contextSource.accountKey] || '';
+                farmerName = customFields[contextSource.nameKey] || '';
+            }
+            if (category.code === 'DATA_REQUEST') {
+                farmerAccount = "0";
+                farmerName = "Not Farmer";
+            }
+            if (category.code === 'ORDER_ADJUSTMENT' && AppState.ctLookedUpFarmer) {
+                farmerAccount = AppState.ctLookedUpFarmer.account_number;
+                farmerName = AppState.ctLookedUpFarmer.name;
+            }
+
+            const payload = {
+                category_id: AppState.ctSelectedCategoryId,
+                fo_email: AppState.ctSelectedFO.fo_email,
+                fo_name: AppState.ctSelectedFO.field_officer,
+                site_id: AppState.ctSelectedFO.site_id,
+                site_name: AppState.ctSelectedFO.site_name,
+                farmer_account: farmerAccount,
+                farmer_name: farmerName,
+                description: description,
+                custom_fields: customFields,
+                caller_phone_number: document.getElementById('ct-phone').value.trim(),
+                related_ticket_id: AppState.ctLinkedTicket ? AppState.ctLinkedTicket.id : null,
+                is_fcr: isFcr,
+                resolution_notes: isFcr ? resolutionNotes : null
+            };
+
+            const btn = document.getElementById('ct-submit-btn');
+            btn.disabled = true;
+            btn.innerText = 'Logging...';
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    btn.disabled = false;
+                    btn.innerText = 'Log Ticket';
+                    if (response.success) {
+                        showToast(`Ticket ${response.data.ticket_number} logged successfully.`);
+                        resetCreateTicketForm();
+                    } else {
+                        showToast("Couldn't log ticket: " + response.error);
+                    }
+                })
+                .withFailureHandler((err) => {
+                    btn.disabled = false;
+                    btn.innerText = 'Log Ticket';
+                    showToast("Couldn't log ticket: " + err.message);
+                })
+                .createHotlineTicket(payload);
+        }
+
+        function resetCreateTicketForm() {
+            clearSelectedFO();
+            document.getElementById('ct-phone').value = '';
+            document.getElementById('ct-category-select').value = '';
+            document.getElementById('ct-dynamic-fields').innerHTML = '';
+            document.getElementById('ct-locked-field-notice').classList.add('hidden');
+            document.getElementById('ct-description').value = '';
+            clearLinkedTicket();
+            document.getElementById('ct-is-fcr').checked = false;
+            document.getElementById('ct-fcr-notes-wrap').classList.add('hidden');
+            document.getElementById('ct-fcr-notes').value = '';
+            AppState.ctSelectedCategoryId = null;
+            AppState.ctFormValues = {};
+            AppState.ctLookedUpFarmer = null;
+        }
+
+        // ---------- Toast ----------
+        let toastTimeout;
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(hideToast, 5000);
+        }
+        function hideToast() {
+            document.getElementById('toast').classList.add('opacity-0', 'pointer-events-none');
+        }
+    </script>
 </body>
 </html>
