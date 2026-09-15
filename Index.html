@@ -505,24 +505,31 @@
                         return;
                     }
                     const p = response.data;
-                    if (!p.is_resolver && !p.is_manager && !p.is_admin) {
-                        showFatalError("You don't currently have access to this tool. Contact your admin if this seems wrong.");
-                        return;
-                    }
-                    AppState.profile = p;
-                    renderNav(p);
-                    populateCategoryFilterDropdown(p);
-                    document.getElementById('sidebar-user-name').innerText = p.name || p.email;
-                    document.getElementById('sidebar-user-email').innerText = p.email;
 
-                    document.getElementById('splash-screen').classList.add('opacity-0', 'pointer-events-none');
-                    document.getElementById('app-shell').classList.remove('hidden');
+            if (!p.is_resolver && !p.is_manager && !p.is_admin && !p.is_call_center_agent) {
+                showFatalError("You don't currently have access to this tool. Contact your admin if this seems wrong.");
+                return;
+            }
 
-                    const defaultView = p.is_resolver ? 'tickets' : (p.is_manager ? 'dashboard' : 'admin');
-                    switchView(defaultView);
-                })
-                .withFailureHandler((err) => showFatalError("Couldn't verify your access: " + err.message))
-                .getUserProfile();
+            AppState.profile = p;
+            renderNav(p);
+            populateCategoryFilterDropdown(p);
+            document.getElementById('sidebar-user-name').innerText = p.name || p.email;
+            document.getElementById('sidebar-user-email').innerText = p.email;
+
+            document.getElementById('splash-screen').classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('app-shell').classList.remove('hidden');
+
+            const defaultView = p.is_resolver
+                ? 'tickets'
+                : (p.is_manager
+                    ? 'dashboard'
+                    : (p.is_call_center_agent ? 'create-ticket' : 'admin'));
+
+            switchView(defaultView);
+        })
+        .withFailureHandler((err) => showFatalError("Couldn't verify your access: " + err.message))
+        .getUserProfile();
         }
 
         function populateCategoryFilterDropdown(p) {
@@ -673,7 +680,7 @@
         }
 
         function prettifyKey(key) {
-            return key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            return (key || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
         }
 
         function renderCustomFields(customFields) {
@@ -1052,10 +1059,6 @@
             URL.revokeObjectURL(url);
         }
 
-        function prettifyKey(key) {
-            return (key || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-        }
-
         // ==================== ADMIN ====================
         function switchAdminTab(tab) {
             AppState.adminTab = tab;
@@ -1333,7 +1336,7 @@
                                     <td><span class="toggle-pill ${r.is_active ? 'on' : 'off'}">${r.is_active ? 'Active' : 'Inactive'}</span></td>
                                     <td><button onclick="showEditResolverForm('${r.email}')" class="link-btn">Edit</button></td>
                                 </tr>`;
-                        }).join('')}
+                            }).join('')}
                     </tbody>
                 </table>`;
         }
@@ -1489,7 +1492,7 @@
                         else showToast("Couldn't save: " + response.error);
                     })
                     .withFailureHandler((err) => showToast("Couldn't save: " + err.message))
-                    [addFn]({ email, name });
+                    [addFn]({ email, name, category_ids: categoryIds });
             } else {
                 const isActive = document.getElementById('role-form-active').checked;
                 google.script.run
@@ -1627,7 +1630,7 @@
 
         function renderCtCategoryOptions() {
             const select = document.getElementById('ct-category-select');
-            if (!AppState.ctCategories || !AppState.ctCategories.length) {
+            if (!Array.isArray(AppState.ctCategories) || !AppState.ctCategories.length) {
                 select.innerHTML = `<option value="">No categories available</option>`;
                 return;
             }
@@ -1687,15 +1690,17 @@
         function onCtCategoryChange() {
             const categoryId = Number(document.getElementById('ct-category-select').value);
             AppState.ctSelectedCategoryId = categoryId || null;
-            // Hotline never supports the bulk-CSV flow, so is_bulk_request is
-            // forced false (not shown) rather than rendered as a checkbox.
             AppState.ctFormValues = { is_bulk_request: false };
             AppState.ctLookedUpFarmer = null;
 
-            const category = AppState.ctCategories.find(c => c.id === categoryId);
-            const allFields = category ? category.fields : [];
-            const fields = allFields.filter(f => f.field_key !== 'is_bulk_request');
-            const hasLockedFields = allFields.some(f => f.is_locked);
+            const category = Array.isArray(AppState.ctCategories)
+                ? AppState.ctCategories.find(c => c.id === categoryId)
+                : null;
+
+            const allFields = category && Array.isArray(category.fields) ? category.fields : [];
+            const fields = allFields.filter(f => f && f.field_key !== 'is_bulk_request');
+
+            const hasLockedFields = allFields.some(f => f && f.is_locked);
 
             const noticeEl = document.getElementById('ct-locked-field-notice');
             if (hasLockedFields) {
