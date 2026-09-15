@@ -50,6 +50,7 @@ const ACTION_HANDLERS = {
   get_pod_structure: hotlineActions.getPodStructure,
   search_fo_tickets: hotlineActions.searchFoTickets,
   create_hotline_ticket: hotlineActions.createHotlineTicket,
+  get_farmer_account: hotlineActions.getFarmerAccount,
 };
 
 app.post('/backoffice', async (req, res) => {
