@@ -5,6 +5,7 @@ const profileActions = require('./actions/profile');
 const managerActions = require('./actions/manager');
 const adminConfigActions = require('./actions/adminConfig');
 const hotlineActions = require('./actions/hotline');
+const dashboardTrendActions = require('./actions/dashboardTrends');
 
 const app = express();
 app.use(express.json());
@@ -36,6 +37,10 @@ const ACTION_HANDLERS = {
   get_sla_breaches: managerActions.getSlaBreaches,
   get_resolver_performance: managerActions.getResolverPerformance,
   export_ticket_history: managerActions.exportTicketHistory,
+  get_ticket_trend: dashboardTrendActions.getTicketTrend,
+  get_sla_trend: dashboardTrendActions.getSlaTrend,
+  get_category_deltas: dashboardTrendActions.getCategoryDeltas,
+  get_creation_heatmap: dashboardTrendActions.getCreationHeatmap,
   admin_list_categories: adminConfigActions.adminListCategories,
   admin_create_category: adminConfigActions.adminCreateCategory,
   admin_update_category: adminConfigActions.adminUpdateCategory,

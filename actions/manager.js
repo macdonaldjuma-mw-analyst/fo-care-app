@@ -210,6 +210,7 @@ async function exportTicketHistory(payload) {
 }
 
 module.exports = {
+  requireManager,
   getDashboardSummary,
   getSlaBreaches,
   getResolverPerformance,

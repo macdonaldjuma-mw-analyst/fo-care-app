@@ -172,6 +172,112 @@
         .form-input { width: 100%; padding: 7px 10px; border: 1px solid var(--line-strong); border-radius: 5px; font-size: 12.5px; font-family: 'IBM Plex Sans', sans-serif; }
         .form-label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--ink-soft); display: block; margin-bottom: 4px; }
         .bar-track { height: 8px; border-radius: 999px; background: #EFEEEA; overflow: hidden; display: flex; }
+
+        /* ==================== Dashboard (modern) ==================== */
+        .dash-page-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+        .dash-page-title { font-family: 'Sora', sans-serif; font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+        .dash-page-sub { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+        .dash-section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+        .dash-section-title { font-family: 'Sora', sans-serif; font-size: 13.5px; font-weight: 700; }
+        .dash-section-sub { font-size: 11px; color: var(--ink-soft); }
+
+        .hero-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 14px; align-items: stretch; }
+        @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
+
+        .hero-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; display: flex; flex-direction: column; }
+        .hero-label { font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; }
+        .hero-figure { font-family: var(--mono); font-size: 34px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; margin-bottom: 14px; }
+        .hero-figure .unit { font-size: 14px; font-weight: 500; color: var(--ink-soft); margin-left: 6px; }
+
+        .seg-bar { display: flex; gap: 3px; height: 10px; margin-bottom: 12px; }
+        .seg-bar > span { border-radius: 4px; min-width: 3px; }
+        .seg-legend { display: flex; flex-wrap: wrap; gap: 14px 18px; margin-top: auto; }
+        .seg-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--ink-soft); }
+        .seg-dot { width: 8px; height: 8px; border-radius: 2.5px; flex-shrink: 0; }
+        .seg-val { font-family: var(--mono); font-weight: 600; color: var(--ink); }
+
+        .ring-card { align-items: center; text-align: center; justify-content: center; }
+        .ring-wrap { position: relative; width: 128px; height: 128px; margin: 4px 0 10px; }
+        .ring-wrap svg { transform: rotate(-90deg); }
+        .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .ring-pct { font-family: var(--mono); font-size: 24px; font-weight: 700; letter-spacing: -0.01em; }
+        .ring-pct-label { font-size: 9.5px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 1px; }
+        .ring-sub { font-size: 11.5px; color: var(--ink-soft); }
+        .ring-sub b { color: var(--ink); font-weight: 600; }
+
+        .crit-card { border-color: var(--crimson-bg); background: linear-gradient(180deg, #FEFAF9 0%, var(--surface) 55%); }
+        .crit-figure { color: var(--oaf-crimson); }
+        .crit-note { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 10px; }
+        .crit-highlight { margin-top: auto; background: var(--crimson-bg); border-radius: 7px; padding: 8px 10px; }
+        .crit-highlight-label { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--oaf-crimson); font-weight: 700; margin-bottom: 2px; }
+        .crit-highlight-val { font-size: 11.5px; font-weight: 600; color: var(--ink); }
+        .crit-highlight-val .mono { color: var(--oaf-crimson); }
+
+        .cat-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 6px 4px; }
+        .cat-row { display: grid; grid-template-columns: 140px 1fr 46px 44px 56px; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid #EEEFEA; }
+        .cat-row:last-child { border-bottom: none; }
+        .cat-row:hover { background: #FAFAF7; }
+        .cat-name { font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 7px; }
+        .cat-bar-track { height: 8px; border-radius: 4px; background: var(--slate-bg); overflow: hidden; display: flex; }
+        .cat-bar-track > span { height: 100%; }
+        .cat-total { font-family: var(--mono); font-size: 12px; text-align: right; color: var(--ink-soft); }
+        .cat-total b { color: var(--ink); font-weight: 600; }
+
+        .feed-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+        .feed-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid #EEEFEA; }
+        .feed-item:last-child { border-bottom: none; }
+        .feed-item:hover { background: #FAFAF7; }
+        .feed-sev { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .feed-main { flex: 1; min-width: 0; }
+        .feed-top { display: flex; align-items: center; gap: 8px; }
+        .feed-ticket { font-family: var(--mono); font-size: 11.5px; font-weight: 700; }
+        .feed-site { font-size: 11px; color: var(--ink-soft); }
+        .feed-resolver { font-size: 10.5px; color: var(--ink-soft); margin-top: 1px; }
+        .feed-resolver.unassigned { color: var(--oaf-binzari); font-weight: 600; }
+
+        .lb-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+        .lb-row { display: grid; grid-template-columns: 22px 1fr 90px 56px 52px 60px; align-items: center; gap: 10px; padding: 9px 14px; border-bottom: 1px solid #EEEFEA; }
+        .lb-row:last-child { border-bottom: none; }
+        .lb-row:hover { background: #FAFAF7; }
+        .lb-rank { font-family: var(--mono); font-size: 10.5px; color: var(--ink-soft); }
+        .lb-name { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lb-bar-track { height: 6px; border-radius: 3px; background: var(--slate-bg); overflow: hidden; }
+        .lb-bar-fill { height: 100%; background: var(--oaf-kakamega); border-radius: 3px; }
+        .lb-num { font-family: var(--mono); font-size: 11.5px; text-align: right; color: var(--ink-soft); }
+        .lb-num b { color: var(--ink); font-weight: 600; }
+
+        .empty-note { padding: 22px 16px; text-align: center; font-size: 12px; color: var(--ink-soft); }
+
+        /* ---- Trend charts (new) ---- */
+        .chart-card { padding: 16px 18px 10px; }
+        .chart-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 6px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-soft); }
+        .legend-swatch { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+        .legend-swatch.line { height: 2px; border-radius: 1px; width: 13px; }
+        .axis-label { font-family: var(--mono); font-size: 9px; fill: var(--ink-faint, var(--ink-soft)); }
+        .grid-line { stroke: #EEEFEA; stroke-width: 1; }
+        .annot-line { stroke: var(--ink-soft); stroke-width: 1; stroke-dasharray: 3 3; }
+        .annot-text { font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; fill: var(--ink-soft); font-weight: 600; }
+        .chart-empty { padding: 40px 16px; text-align: center; font-size: 12px; color: var(--ink-soft); }
+
+        .range-toggle { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+        .range-toggle button { border: none; background: transparent; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; font-weight: 600; color: var(--ink-soft); padding: 4px 10px; border-radius: 5px; cursor: pointer; }
+        .range-toggle button.active { background: var(--surface-2, #FAFAF7); color: var(--ink); box-shadow: 0 1px 2px rgba(20,32,26,0.05); }
+
+        /* ---- Category deltas (new column in existing .cat-row) ---- */
+        .cat-delta { font-family: var(--mono); font-size: 10.5px; text-align: right; font-weight: 700; }
+        .cat-delta.up { color: var(--oaf-crimson); }
+        .cat-delta.down { color: var(--oaf-kakamega); }
+        .cat-delta.flat { color: var(--ink-soft); }
+
+        /* ---- Creation heatmap (new) ---- */
+        .heatmap-card { padding: 16px 18px; }
+        .heatmap-grid { display: grid; grid-template-columns: 34px repeat(24, 1fr); gap: 3px; align-items: center; }
+        .heat-hr-label { font-family: var(--mono); font-size: 8px; color: var(--ink-soft); text-align: center; }
+        .heat-day-label { font-size: 10.5px; color: var(--ink-soft); font-weight: 600; padding-right: 4px; }
+        .heat-cell { aspect-ratio: 1; border-radius: 3px; }
+        .heatmap-scale { display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 10.5px; color: var(--ink-soft); }
+        .scale-cell { width: 12px; height: 12px; border-radius: 3px; }
     </style>
 </head>
 <body class="antialiased">
@@ -257,41 +363,96 @@
 
             <!-- ============ DASHBOARD ============ -->
             <section id="view-dashboard" class="hidden flex-1 p-5 overflow-y-auto">
-                <div class="max-w-6xl mx-auto space-y-5">
-                    <div class="flex justify-between items-baseline">
-                        <span class="section-title">Ticket pulse</span>
-                        <button onclick="loadDashboard()" class="text-xs font-bold" style="color:var(--oaf-kakamega);">↻ Refresh</button>
+                <div class="max-w-6xl mx-auto space-y-6">
+
+                    <div class="dash-page-head">
+                        <div>
+                            <div class="dash-page-title">Ticket operations</div>
+                            <div class="dash-page-sub" id="dash-last-updated">Loading current workload…</div>
+                        </div>
+                        <button onclick="loadDashboard()" class="btn btn-outline">↻ Refresh</button>
                     </div>
 
-                    <div id="dashboard-summary-strip" class="pulse-card"></div>
+                    <div id="dashboard-summary-strip" class="hero-grid"></div>
 
                     <div>
-                        <div class="flex justify-between items-baseline mb-2">
-                            <span class="section-title">By category</span>
+                        <div class="dash-section-head">
+                            <span class="dash-section-title">Ticket volume &amp; resolution trend</span>
+                            <div class="flex items-center gap-3">
+                                <span class="dash-section-sub" id="trend-sub"></span>
+                                <div class="range-toggle" id="trend-range-toggle">
+                                    <button onclick="setTrendRange(7, this)">7d</button>
+                                    <button onclick="setTrendRange(30, this)" class="active">30d</button>
+                                    <button onclick="setTrendRange(90, this)">90d</button>
+                                </div>
+                            </div>
                         </div>
-                        <div id="dashboard-category-grid" class="table-card"></div>
+                        <div class="card chart-card">
+                            <div class="chart-legend">
+                                <div class="legend-item"><span class="legend-swatch" style="background:#00A8AB;"></span>Created</div>
+                                <div class="legend-item"><span class="legend-swatch" style="background:var(--oaf-kakamega);"></span>Resolved</div>
+                                <div class="legend-item"><span class="legend-swatch line" style="background:var(--ink-soft);"></span>Backlog</div>
+                            </div>
+                            <div id="trend-chart"></div>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                    <div>
+                        <div class="dash-section-head">
+                            <span class="dash-section-title">SLA compliance, last 13 weeks</span>
+                            <span class="dash-section-sub">Target: 90% resolved within SLA</span>
+                        </div>
+                        <div class="card chart-card"><div id="sla-trend-chart"></div></div>
+                    </div>
+
+                    <div>
+                        <div class="dash-section-head">
+                            <span class="dash-section-title">Where the load is concentrated</span>
+                            <span class="dash-section-sub" id="dash-category-sub"></span>
+                        </div>
+                        <div id="dashboard-category-grid" class="cat-card"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
                         <div>
-                            <div class="flex justify-between items-baseline mb-2">
-                                <span class="section-title">SLA breaches</span>
+                            <div class="dash-section-head">
+                                <span class="dash-section-title">SLA breach queue</span>
+                                <span class="dash-section-sub" id="dash-sla-sub"></span>
                             </div>
-                            <div class="table-card"><div id="dashboard-sla-list"></div></div>
+                            <div class="feed-card"><div id="dashboard-sla-list"></div></div>
                         </div>
 
                         <div id="dashboard-resolver-section" class="hidden">
-                            <div class="flex justify-between items-baseline mb-2 flex-wrap gap-2">
-                                <span class="section-title">Resolver performance</span>
+                            <div class="dash-section-head">
+                                <span class="dash-section-title">Resolver leaderboard</span>
                                 <div class="flex items-center gap-2 text-xs">
                                     <input type="date" id="perf-date-from" class="px-2 py-1.5 border border-gray-200 rounded-lg">
                                     <span style="color:var(--ink-soft);">to</span>
                                     <input type="date" id="perf-date-to" class="px-2 py-1.5 border border-gray-200 rounded-lg">
                                     <button onclick="loadResolverPerformance()" class="btn btn-outline">Apply</button>
-                                    <button onclick="handleExportHistory()" class="btn btn-primary">⬇ Export CSV</button>
+                                    <button onclick="handleExportHistory()" class="btn btn-primary">⬇ Export</button>
                                 </div>
                             </div>
-                            <div class="table-card"><div id="dashboard-resolver-table"></div></div>
+                            <div class="lb-card"><div id="dashboard-resolver-table"></div></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="dash-section-head">
+                            <span class="dash-section-title">When tickets get created</span>
+                            <span class="dash-section-sub">Day of week × hour, last 180 days — a staffing-planning view</span>
+                        </div>
+                        <div class="card heatmap-card">
+                            <div class="heatmap-grid" id="heatmap-grid"></div>
+                            <div class="heatmap-scale">
+                                <span>Fewer</span>
+                                <span class="scale-cell" style="background:var(--slate-bg);"></span>
+                                <span class="scale-cell" id="heat-scale-2"></span>
+                                <span class="scale-cell" id="heat-scale-3"></span>
+                                <span class="scale-cell" id="heat-scale-4"></span>
+                                <span class="scale-cell" id="heat-scale-5"></span>
+                                <span>More</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -462,6 +623,11 @@
             myResolvers: null,
             dashboard: null,
             slaBreaches: null,
+            ticketTrend: null,
+            trendRangeDays: 30,
+            slaTrend: null,
+            categoryDeltas: null,
+            creationHeatmap: null,
             adminTab: 'categories',
             adminCategories: null,
             selectedAdminCategoryId: null,
@@ -876,6 +1042,9 @@
             document.getElementById('dashboard-summary-strip').innerHTML = renderStatCardsSkeleton();
             document.getElementById('dashboard-category-grid').innerHTML = '';
             document.getElementById('dashboard-sla-list').innerHTML = renderListSkeleton();
+            document.getElementById('trend-chart').innerHTML = `<div class="chart-empty">Loading trend…</div>`;
+            document.getElementById('sla-trend-chart').innerHTML = `<div class="chart-empty">Loading trend…</div>`;
+            document.getElementById('heatmap-grid').innerHTML = '';
 
             google.script.run
                 .withSuccessHandler((response) => {
@@ -898,13 +1067,228 @@
                 .withFailureHandler((err) => showToast("Failed to load SLA breaches: " + err.message))
                 .getSlaBreaches();
 
+            loadTicketTrend(AppState.trendRangeDays);
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) { AppState.slaTrend = response.data; renderSlaTrendChart(); }
+                    else document.getElementById('sla-trend-chart').innerHTML = `<div class="chart-empty">Couldn't load SLA trend: ${response.error}</div>`;
+                })
+                .withFailureHandler((err) => showToast("Failed to load SLA trend: " + err.message))
+                .getSlaTrend(13);
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) { AppState.categoryDeltas = response.data; renderCategoryBreakdown(); }
+                    // Silent on failure — the category list still renders fine from
+                    // getDashboardSummary alone, just without the trend arrows.
+                })
+                .withFailureHandler(() => {})
+                .getCategoryDeltas(30);
+
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) { AppState.creationHeatmap = response.data; renderCreationHeatmap(); }
+                    else document.getElementById('heatmap-grid').innerHTML = `<div class="chart-empty">Couldn't load heatmap: ${response.error}</div>`;
+                })
+                .withFailureHandler((err) => showToast("Failed to load creation heatmap: " + err.message))
+                .getCreationHeatmap();
+
             const showResolverSection = AppState.profile.is_manager || AppState.profile.is_admin;
             document.getElementById('dashboard-resolver-section').classList.toggle('hidden', !showResolverSection);
             if (showResolverSection) loadResolverPerformance();
         }
 
+        function setTrendRange(days, btn) {
+            Array.from(document.querySelectorAll('#trend-range-toggle button')).forEach(b => b.classList.toggle('active', b === btn));
+            loadTicketTrend(days);
+        }
+
+        function loadTicketTrend(days) {
+            AppState.trendRangeDays = days;
+            document.getElementById('trend-chart').innerHTML = `<div class="chart-empty">Loading trend…</div>`;
+            google.script.run
+                .withSuccessHandler((response) => {
+                    if (response.success) { AppState.ticketTrend = response.data; renderTrendChart(); }
+                    else document.getElementById('trend-chart').innerHTML = `<div class="chart-empty">Couldn't load trend: ${response.error}</div>`;
+                })
+                .withFailureHandler((err) => showToast("Failed to load ticket trend: " + err.message))
+                .getTicketTrend(days);
+        }
+
+        // ---------- SVG chart helpers ----------
+        function svgEl(tag, attrs) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const k in attrs) el.setAttribute(k, attrs[k]);
+            return el;
+        }
+        function pathFromValues(values, w, h, padTop, padBottom, min, max) {
+            const range = (max - min) || 1;
+            const stepX = values.length > 1 ? w / (values.length - 1) : w;
+            return values.map((v, i) => {
+                const x = i * stepX;
+                const y = padTop + (h - padTop - padBottom) * (1 - (v - min) / range);
+                return (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
+            }).join(' ');
+        }
+
         function renderStatCardsSkeleton() {
-            return `<div class="skeleton h-3 w-1/3 mb-3"></div><div class="skeleton h-5 w-1/4 mb-3"></div><div class="skeleton h-5 w-full"></div>`;
+            const sk = `<div class="hero-card"><div class="skeleton h-3 w-1/2 mb-4"></div><div class="skeleton h-8 w-1/3 mb-4"></div><div class="skeleton h-2.5 w-full mb-3"></div><div class="skeleton h-3 w-3/4"></div></div>`;
+            return sk + sk + sk;
+        }
+
+        // ---------- Ticket volume & resolution trend ----------
+        function renderTrendChart() {
+            const trend = (AppState.ticketTrend && AppState.ticketTrend.trend) || [];
+            const container = document.getElementById('trend-chart');
+            if (!trend.length) { container.innerHTML = `<div class="chart-empty">No trend data for this range.</div>`; return; }
+
+            const w = 1180, h = 220, padTop = 14, padBottom = 26;
+            const maxVal = Math.max(1, ...trend.map(d => Math.max(d.created, d.resolved))) * 1.15;
+            const maxBacklog = Math.max(1, ...trend.map(d => d.backlog)) * 1.1;
+
+            container.innerHTML = '';
+            const svg = svgEl('svg', { viewBox: `0 0 ${w} ${h}`, width: '100%', height: h, preserveAspectRatio: 'none' });
+
+            for (let g = 0; g <= 3; g++) {
+                const gy = padTop + (h - padTop - padBottom) * (g / 3);
+                svg.appendChild(svgEl('line', { x1: 0, x2: w, y1: gy, y2: gy, class: 'grid-line' }));
+            }
+
+            const createdVals = trend.map(d => d.created);
+            const resolvedVals = trend.map(d => d.resolved);
+            const backlogVals = trend.map(d => d.backlog);
+
+            const createdPath = pathFromValues(createdVals, w, h, padTop, padBottom, 0, maxVal);
+            const resolvedPath = pathFromValues(resolvedVals, w, h, padTop, padBottom, 0, maxVal);
+            const backlogPath = pathFromValues(backlogVals, w, h, padTop, padBottom, 0, maxBacklog);
+            const createdArea = createdPath + ` L${w},${h - padBottom} L0,${h - padBottom} Z`;
+
+            const gradId = 'trendGrad' + Math.random().toString(36).slice(2, 8);
+            const defs = svgEl('defs', {});
+            const grad = svgEl('linearGradient', { id: gradId, x1: '0', y1: '0', x2: '0', y2: '1' });
+            grad.appendChild(svgEl('stop', { offset: '0%', 'stop-color': '#00A8AB', 'stop-opacity': '0.16' }));
+            grad.appendChild(svgEl('stop', { offset: '100%', 'stop-color': '#00A8AB', 'stop-opacity': '0' }));
+            defs.appendChild(grad);
+            svg.appendChild(defs);
+
+            svg.appendChild(svgEl('path', { d: createdArea, fill: `url(#${gradId})`, stroke: 'none' }));
+            svg.appendChild(svgEl('path', { d: createdPath, fill: 'none', stroke: '#00A8AB', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+            svg.appendChild(svgEl('path', { d: resolvedPath, fill: 'none', stroke: 'var(--oaf-kakamega)', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+            svg.appendChild(svgEl('path', { d: backlogPath, fill: 'none', stroke: 'var(--ink-soft)', 'stroke-width': '1.4', 'stroke-dasharray': '4 3', 'stroke-linecap': 'round' }));
+
+            const tickEvery = Math.ceil(trend.length / 7) || 1;
+            const stepX = trend.length > 1 ? w / (trend.length - 1) : w;
+            trend.forEach((d, i) => {
+                if (i % tickEvery !== 0 && i !== trend.length - 1) return;
+                const label = new Date(d.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                const tx = svgEl('text', { x: i * stepX, y: h - 8, class: 'axis-label', 'text-anchor': i === 0 ? 'start' : (i === trend.length - 1 ? 'end' : 'middle') });
+                tx.textContent = label;
+                svg.appendChild(tx);
+            });
+
+            container.appendChild(svg);
+            const totalCreated = trend.reduce((s, d) => s + d.created, 0);
+            const totalResolved = trend.reduce((s, d) => s + d.resolved, 0);
+            document.getElementById('trend-sub').innerText = `${totalCreated} created · ${totalResolved} resolved`;
+        }
+
+        // ---------- SLA compliance trend ----------
+        function renderSlaTrendChart() {
+            const weeks = (AppState.slaTrend && AppState.slaTrend.weeks) || [];
+            const container = document.getElementById('sla-trend-chart');
+            if (!weeks.length) { container.innerHTML = `<div class="chart-empty">No SLA trend data yet.</div>`; return; }
+
+            const w = 1180, h = 150, padTop = 14, padBottom = 24;
+            container.innerHTML = '';
+            const svg = svgEl('svg', { viewBox: `0 0 ${w} ${h}`, width: '100%', height: h, preserveAspectRatio: 'none' });
+
+            for (let g = 0; g <= 2; g++) {
+                const gy = padTop + (h - padTop - padBottom) * (g / 2);
+                svg.appendChild(svgEl('line', { x1: 0, x2: w, y1: gy, y2: gy, class: 'grid-line' }));
+            }
+            const targetY = padTop + (h - padTop - padBottom) * (1 - 90 / 100);
+            svg.appendChild(svgEl('line', { x1: 0, x2: w, y1: targetY, y2: targetY, class: 'annot-line' }));
+            const targetLabel = svgEl('text', { x: w - 4, y: targetY - 5, class: 'annot-text', 'text-anchor': 'end' });
+            targetLabel.textContent = '90% target';
+            svg.appendChild(targetLabel);
+
+            const stepX = weeks.length > 1 ? w / (weeks.length - 1) : w;
+            const yFor = (pct) => padTop + (h - padTop - padBottom) * (1 - (pct - 40) / 60);
+
+            // Draw connected line segments only across consecutive weeks that
+            // actually have data — a week with zero resolutions (pct_on_time:
+            // null) breaks the line rather than being plotted as 0%.
+            let run = [];
+            const flushRun = () => {
+                if (run.length > 1) {
+                    const runPath = run.map((pt, i) => (i === 0 ? 'M' : 'L') + pt.x.toFixed(1) + ',' + pt.y.toFixed(1)).join(' ');
+                    svg.appendChild(svgEl('path', { d: runPath, fill: 'none', stroke: 'var(--oaf-kakamega)', 'stroke-width': '2.2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+                }
+                run = [];
+            };
+            weeks.forEach((wk, i) => {
+                const x = i * stepX;
+                if (wk.pct_on_time === null || wk.pct_on_time === undefined) {
+                    flushRun();
+                } else {
+                    const y = yFor(wk.pct_on_time);
+                    run.push({ x, y });
+                    const below = wk.pct_on_time < 90;
+                    svg.appendChild(svgEl('circle', { cx: x, cy: y, r: 3, fill: below ? 'var(--oaf-crimson)' : 'var(--oaf-kakamega)' }));
+                }
+                if (i % 2 === 0 || i === weeks.length - 1) {
+                    const label = new Date(wk.week_start + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                    const tx = svgEl('text', { x, y: h - 6, class: 'axis-label', 'text-anchor': i === 0 ? 'start' : (i === weeks.length - 1 ? 'end' : 'middle') });
+                    tx.textContent = label;
+                    svg.appendChild(tx);
+                }
+            });
+            flushRun();
+
+            container.appendChild(svg);
+        }
+
+        // ---------- Ticket creation heatmap ----------
+        function heatColorFor(intensity) {
+            if (intensity <= 0.01) return 'var(--slate-bg)';
+            if (intensity < 0.35) return 'rgba(0,168,171,0.28)';
+            if (intensity < 0.6) return `rgba(0,168,171,${(0.35 + intensity * 0.4).toFixed(2)})`;
+            if (intensity < 0.85) return `rgba(176,114,26,${(0.45 + intensity * 0.35).toFixed(2)})`;
+            return `rgba(166,57,46,${(0.55 + intensity * 0.35).toFixed(2)})`;
+        }
+        function renderCreationHeatmap() {
+            const cells = (AppState.creationHeatmap && AppState.creationHeatmap.heatmap) || [];
+            const el = document.getElementById('heatmap-grid');
+            if (!cells.length) { el.innerHTML = `<div class="chart-empty">No heatmap data yet.</div>`; return; }
+
+            const grid = {};
+            let maxCount = 0;
+            cells.forEach(c => { grid[`${c.day_of_week}-${c.hour}`] = c.count; maxCount = Math.max(maxCount, c.count); });
+
+            const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            let html = '<div></div>';
+            for (let h = 0; h < 24; h++) html += `<div class="heat-hr-label">${h % 3 === 0 ? h : ''}</div>`;
+            for (let d = 0; d < 7; d++) {
+                html += `<div class="heat-day-label">${dayLabels[d]}</div>`;
+                for (let h = 0; h < 24; h++) {
+                    const v = grid[`${d}-${h}`] || 0;
+                    const intensity = maxCount ? v / maxCount : 0;
+                    html += `<div class="heat-cell" style="background:${heatColorFor(intensity)};" title="${dayLabels[d]} ${h}:00 — ${v} tickets"></div>`;
+                }
+            }
+            el.innerHTML = html;
+            document.getElementById('heat-scale-2').style.background = heatColorFor(0.25);
+            document.getElementById('heat-scale-3').style.background = heatColorFor(0.5);
+            document.getElementById('heat-scale-4').style.background = heatColorFor(0.75);
+            document.getElementById('heat-scale-5').style.background = heatColorFor(1);
+        }
+
+        function initialsOf(nameOrEmail) {
+            if (!nameOrEmail) return '--';
+            const base = nameOrEmail.includes('@') ? nameOrEmail.split('@')[0].replace(/[._-]/g, ' ') : nameOrEmail;
+            const parts = base.split(' ').filter(Boolean).slice(0, 2);
+            return parts.map(w => w[0].toUpperCase()).join('') || '--';
         }
 
         function renderDashboardSummary() {
@@ -916,84 +1300,153 @@
                 overdue: Number(summary.overdue) || 0,
                 critical_overdue: Number(summary.critical_overdue) || 0
             };
-            const total = Number(summary.total_tickets) || (totals.open + totals.in_progress + totals.resolved_pending) || 1;
-            const pct = (n) => Math.round((n / total) * 1000) / 10;
+            const total = Number(summary.total_tickets) || (totals.open + totals.in_progress + totals.resolved_pending) || 0;
+            const safeTotal = total || 1;
+            const segPct = (n) => Math.max(0, Math.round((n / safeTotal) * 1000) / 10);
             const overduePct = total > 0 ? Math.round((totals.overdue / total) * 100) : 0;
+            const onTrackPct = Math.max(0, 100 - overduePct);
 
-            document.getElementById('dashboard-summary-strip').innerHTML = `
-                <div class="pulse-top">
-                    <div>
-                        <div class="pulse-total-label">Total open workload</div>
-                        <div class="pulse-total">${total}</div>
+            document.getElementById('dash-last-updated').innerText =
+                `${total} tickets in the active queue · last refreshed ${new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
+
+            // -- Card 1: workload composition --
+            const workloadCard = `
+                <div class="hero-card">
+                    <div class="hero-label">Total open workload</div>
+                    <div class="hero-figure">${total}<span class="unit">tickets</span></div>
+                    <div class="seg-bar">
+                        <span style="width:${segPct(totals.open)}%; background:#00A8AB;"></span>
+                        <span style="width:${segPct(totals.in_progress)}%; background:var(--oaf-binzari);"></span>
+                        <span style="width:${segPct(totals.resolved_pending)}%; background:var(--oaf-kakamega);"></span>
                     </div>
-                    <div class="pulse-legend">
-                        <div class="pl-item"><span class="pl-dot" style="background:#00A8AB"></span>Open <span class="pl-val">${totals.open}</span></div>
-                        <div class="pl-item"><span class="pl-dot" style="background:var(--oaf-binzari)"></span>In progress <span class="pl-val">${totals.in_progress}</span></div>
-                        <div class="pl-item"><span class="pl-dot" style="background:var(--oaf-kakamega)"></span>Pending confirm <span class="pl-val">${totals.resolved_pending}</span></div>
-                        <div class="pl-item"><span class="pl-dot" style="background:var(--oaf-crimson)"></span>Critical (24h+) <span class="pl-val">${totals.critical_overdue}</span></div>
+                    <div class="seg-legend">
+                        <div class="seg-legend-item"><span class="seg-dot" style="background:#00A8AB;"></span>Open <span class="seg-val">${totals.open}</span></div>
+                        <div class="seg-legend-item"><span class="seg-dot" style="background:var(--oaf-binzari);"></span>In progress <span class="seg-val">${totals.in_progress}</span></div>
+                        <div class="seg-legend-item"><span class="seg-dot" style="background:var(--oaf-kakamega);"></span>Pending confirm <span class="seg-val">${totals.resolved_pending}</span></div>
                     </div>
-                </div>
-                <div class="pulse-bar">
-                    <div class="pulse-seg" style="width:${pct(totals.open)}%; background:#00A8AB;"></div>
-                    <div class="pulse-seg" style="width:${pct(totals.in_progress)}%; background:var(--oaf-binzari);"></div>
-                    <div class="pulse-seg" style="width:${pct(totals.resolved_pending)}%; background:var(--oaf-kakamega);"></div>
-                    <div class="pulse-seg" style="width:${pct(totals.critical_overdue)}%; background:var(--oaf-crimson);"></div>
-                </div>
-                <div class="pulse-scale"><span>0</span><span>${totals.overdue} overdue of ${total} · ${overduePct}% breaching SLA</span><span>${total}</span></div>`;
+                </div>`;
+
+            // -- Card 2: SLA health ring --
+            const ringColor = onTrackPct >= 85 ? 'var(--oaf-kakamega)' : (onTrackPct >= 65 ? 'var(--oaf-binzari)' : 'var(--oaf-crimson)');
+            const C = 2 * Math.PI * 52;
+            const offset = C - (onTrackPct / 100) * C;
+            const ringCard = `
+                <div class="hero-card ring-card">
+                    <div class="hero-label">SLA health</div>
+                    <div class="ring-wrap">
+                        <svg viewBox="0 0 120 120" width="128" height="128">
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--slate-bg)" stroke-width="12"/>
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="${ringColor}" stroke-width="12" stroke-linecap="round"
+                                stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"/>
+                        </svg>
+                        <div class="ring-center">
+                            <div class="ring-pct">${onTrackPct}%</div>
+                            <div class="ring-pct-label">On track</div>
+                        </div>
+                    </div>
+                    <div class="ring-sub"><b>${totals.overdue}</b> breaching SLA of <b>${total}</b> open</div>
+                </div>`;
+
+            // -- Card 3: critical queue --
+            const critCard = `
+                <div class="hero-card crit-card">
+                    <div class="hero-label">Critical &middot; overdue 24h+</div>
+                    <div class="hero-figure crit-figure">${totals.critical_overdue}</div>
+                    <div class="crit-note">${totals.overdue} ticket${totals.overdue === 1 ? '' : 's'} total breaching SLA right now</div>
+                    <div class="crit-highlight" id="crit-highlight">
+                        <div class="crit-highlight-label">Most urgent</div>
+                        <div class="crit-highlight-val" id="crit-highlight-body">Checking the queue…</div>
+                    </div>
+                </div>`;
+
+            document.getElementById('dashboard-summary-strip').innerHTML = workloadCard + ringCard + critCard;
         }
 
         function renderCategoryBreakdown() {
-            const data = (AppState.dashboard && AppState.dashboard.categories) || [];
+            const data = ((AppState.dashboard && AppState.dashboard.categories) || []).slice();
             const container = document.getElementById('dashboard-category-grid');
-            if (!data.length) { container.innerHTML = `<div class="p-6 text-center text-xs" style="color:var(--ink-soft);">No category data yet.</div>`; return; }
+            const subEl = document.getElementById('dash-category-sub');
+
+            if (!data.length) {
+                container.innerHTML = `<div class="empty-note">No category data yet.</div>`;
+                if (subEl) subEl.innerText = '';
+                return;
+            }
+
+            data.forEach(c => { c._total = (Number(c.open)||0) + (Number(c.in_progress)||0) + (Number(c.resolved_pending)||0); });
+            data.sort((a, b) => b._total - a._total);
+            const grandTotal = data.reduce((sum, c) => sum + c._total, 0) || 1;
+            const topShare = Math.round((data[0]._total / grandTotal) * 100);
+            if (subEl) subEl.innerText = `${data[0].category_label} is ${topShare}% of the open queue`;
 
             const rows = data.map(c => {
-                const total = (Number(c.open)||0) + (Number(c.in_progress)||0) + (Number(c.resolved_pending)||0);
-                const load = total > 0 ? Math.round(((Number(c.overdue)||0) / total) * 100) : 0;
-                const dotClass = Number(c.critical_overdue) > 0 ? 'crimson' : (Number(c.overdue) > 0 ? 'amber' : 'signal');
-                const badge = Number(c.critical_overdue) > 0
-                    ? `<span class="badge crimson">${c.overdue}</span>`
-                    : (Number(c.overdue) > 0 ? `<span class="badge amber">${c.overdue}</span>` : `<span class="badge slate">0</span>`);
+                const t = c._total || 1;
+                const openPct = Math.round(((Number(c.open)||0) / t) * 100);
+                const progPct = Math.round(((Number(c.in_progress)||0) / t) * 100);
+                const pendPct = Math.max(0, 100 - openPct - progPct);
+                const overdue = Number(c.overdue) || 0;
+                const critical = Number(c.critical_overdue) || 0;
+                const overdueEl = critical > 0
+                    ? `<span class="badge crimson">${overdue} SLA</span>`
+                    : (overdue > 0 ? `<span class="badge amber">${overdue} SLA</span>` : `<span class="badge slate">0</span>`);
+                const dotColor = critical > 0 ? 'var(--oaf-crimson)' : (overdue > 0 ? 'var(--oaf-binzari)' : 'var(--oaf-kakamega)');
                 return `
-                    <tr>
-                        <td><span class="dot ${dotClass}"></span><span style="font-weight:600;">${c.category_label}</span></td>
-                        <td class="num">${c.open}</td>
-                        <td class="num">${c.in_progress}</td>
-                        <td class="num">${c.resolved_pending}</td>
-                        <td class="num">${badge}</td>
-                        <td><span class="mini-bar-track"><span class="mini-bar-fill" style="width:${load}%; background:${dotClass === 'crimson' ? 'var(--oaf-crimson)' : (dotClass === 'amber' ? 'var(--oaf-binzari)' : 'var(--oaf-kakamega)')};"></span></span><span class="mono" style="font-size:11px;color:var(--ink-soft);">${load}%</span></td>
-                    </tr>`;
+                    <div class="cat-row">
+                        <div class="cat-name"><span class="dot" style="background:${dotColor};"></span>${c.category_label}</div>
+                        <div class="cat-bar-track">
+                            <span style="width:${openPct}%; background:#00A8AB;"></span>
+                            <span style="width:${progPct}%; background:var(--oaf-binzari);"></span>
+                            <span style="width:${pendPct}%; background:var(--oaf-kakamega);"></span>
+                        </div>
+                        <div class="cat-total"><b>${c._total}</b> open</div>
+                        <div class="num">${overdueEl}</div>
+                    </div>`;
             }).join('');
 
-            container.innerHTML = `
-                <table class="dense-table">
-                    <thead><tr><th>Category</th><th class="num">Open</th><th class="num">In progress</th><th class="num">Pending</th><th class="num">Overdue</th><th>Load</th></tr></thead>
-                    <tbody>${rows}</tbody>
-                </table>`;
+            container.innerHTML = rows;
         }
 
         function renderSlaBreaches() {
-            const list = (AppState.slaBreaches && AppState.slaBreaches.tickets) || [];
+            const list = ((AppState.slaBreaches && AppState.slaBreaches.tickets) || []).slice();
             const container = document.getElementById('dashboard-sla-list');
-            if (!list.length) { container.innerHTML = `<p class="text-xs text-center py-4" style="color:var(--ink-soft);">No SLA breaches right now.</p>`; return; }
+            const subEl = document.getElementById('dash-sla-sub');
+            if (subEl) subEl.innerText = list.length ? `${list.length} ticket${list.length === 1 ? '' : 's'} over SLA` : '';
 
+            const highlightBody = document.getElementById('crit-highlight-body');
+            if (highlightBody) {
+                if (!list.length) {
+                    highlightBody.innerHTML = `No breaches — queue is clean.`;
+                } else {
+                    const worst = list.slice().sort((a, b) => (Number(b.hours_overdue)||0) - (Number(a.hours_overdue)||0))[0];
+                    const hrs = Math.round(Number(worst.hours_overdue) || 0);
+                    highlightBody.innerHTML = `<span class="mono">${worst.ticket_number}</span> &middot; ${hrs}h overdue at ${worst.site_name || 'unknown site'}`;
+                }
+            }
+
+            if (!list.length) { container.innerHTML = `<div class="empty-note">No SLA breaches right now — nice work.</div>`; return; }
+
+            list.sort((a, b) => (Number(b.hours_overdue)||0) - (Number(a.hours_overdue)||0));
             const rows = list.map(t => {
                 const hrs = Math.round(Number(t.hours_overdue) || 0);
-                const badgeClass = hrs > 24 ? 'crimson' : 'amber';
+                const isCritical = hrs > 24;
+                const sevColor = isCritical ? 'var(--oaf-crimson)' : 'var(--oaf-binzari)';
+                const resolver = t.assigned_resolver_email;
                 return `
-                    <tr>
-                        <td class="mono">${t.ticket_number}</td>
-                        <td>${t.site_name || ''}</td>
-                        <td style="color:var(--ink-soft);">${t.assigned_resolver_email || 'Unassigned'}</td>
-                        <td class="num"><span class="badge ${badgeClass}">${hrs}h</span></td>
-                    </tr>`;
+                    <div class="feed-item">
+                        <span class="feed-sev" style="background:${sevColor};"></span>
+                        <span class="avatar-init">${initialsOf(resolver || t.site_name)}</span>
+                        <div class="feed-main">
+                            <div class="feed-top">
+                                <span class="feed-ticket">${t.ticket_number}</span>
+                                <span class="feed-site">${t.site_name || ''}</span>
+                            </div>
+                            <div class="feed-resolver ${resolver ? '' : 'unassigned'}">${resolver || 'Unassigned'}</div>
+                        </div>
+                        <span class="badge ${isCritical ? 'crimson' : 'amber'}">${hrs}h</span>
+                    </div>`;
             }).join('');
 
-            container.innerHTML = `
-                <table class="dense-table">
-                    <thead><tr><th>Ticket</th><th>Site</th><th>Resolver</th><th class="num">Overdue</th></tr></thead>
-                    <tbody>${rows}</tbody>
-                </table>`;
+            container.innerHTML = rows;
         }
 
         function loadResolverPerformance() {
@@ -1012,27 +1465,26 @@
 
         function renderResolverPerformance(rows) {
             const container = document.getElementById('dashboard-resolver-table');
-            if (!rows || !rows.length) { container.innerHTML = `<p class="text-xs text-center py-4" style="color:var(--ink-soft);">No resolver data for this period.</p>`; return; }
-            const maxResolved = Math.max(...rows.map(r => Number(r.tickets_resolved) || 0), 1);
+            if (!rows || !rows.length) { container.innerHTML = `<div class="empty-note">No resolver data for this period.</div>`; return; }
 
-            const trs = rows.map(r => {
+            const sorted = rows.slice().sort((a, b) => (Number(b.tickets_resolved)||0) - (Number(a.tickets_resolved)||0));
+            const maxResolved = Math.max(...sorted.map(r => Number(r.tickets_resolved) || 0), 1);
+
+            const trs = sorted.map((r, i) => {
                 const barPct = Math.round(((Number(r.tickets_resolved)||0) / maxResolved) * 100);
-                const overdueCell = Number(r.currently_overdue) > 0 ? `<span class="badge crimson">${r.currently_overdue}</span>` : r.currently_overdue;
+                const overdueCell = Number(r.currently_overdue) > 0 ? `<span class="badge crimson">${r.currently_overdue}</span>` : `<span class="mono" style="color:var(--ink-soft);">0</span>`;
                 return `
-                    <tr>
-                        <td style="font-weight:600;">${r.resolver_name}</td>
-                        <td class="num"><span class="mini-bar-track" style="width:44px;"><span class="mini-bar-fill" style="width:${barPct}%;"></span></span><span class="mono">${r.tickets_resolved}</span></td>
-                        <td class="num mono">${r.avg_resolution_hours ? Number(r.avg_resolution_hours).toFixed(1) + 'h' : '--'}</td>
-                        <td class="num mono">${r.currently_open}</td>
-                        <td class="num">${overdueCell}</td>
-                    </tr>`;
+                    <div class="lb-row">
+                        <span class="lb-rank">${i + 1}</span>
+                        <span class="lb-name">${r.resolver_name}</span>
+                        <span class="lb-bar-track"><span class="lb-bar-fill" style="width:${barPct}%;"></span></span>
+                        <span class="lb-num"><b>${r.tickets_resolved}</b> done</span>
+                        <span class="lb-num">${r.avg_resolution_hours ? Number(r.avg_resolution_hours).toFixed(1) + 'h' : '--'}</span>
+                        <span class="num">${overdueCell}</span>
+                    </div>`;
             }).join('');
 
-            container.innerHTML = `
-                <table class="dense-table">
-                    <thead><tr><th>Resolver</th><th class="num">Resolved</th><th class="num">Avg hours</th><th class="num">Open now</th><th class="num">Overdue now</th></tr></thead>
-                    <tbody>${trs}</tbody>
-                </table>`;
+            container.innerHTML = trs;
         }
 
         function handleExportHistory() {

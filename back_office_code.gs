@@ -41,6 +41,11 @@ var CLOUD_RUN_MIGRATED_ACTIONS = [
   'get_sla_breaches',
   'get_resolver_performance',
   'export_ticket_history',
+  // Manager dashboard — trend endpoints (new)
+  'get_ticket_trend',
+  'get_sla_trend',
+  'get_category_deltas',
+  'get_creation_heatmap',
   // Admin: categories, category fields, resolver-category assignment, audit log
   'admin_list_categories',
   'admin_create_category',
@@ -193,6 +198,33 @@ function exportTicketHistory(dateFrom, dateTo) {
     date_from: dateFrom || null,
     date_to: dateTo || null
   });
+}
+
+/* ---- Manager dashboard — trend endpoints (new) ---- */
+
+function getTicketTrend(days) {
+  return callBackOfficeWebhook_('get_ticket_trend', {
+    email: getActiveEmail_(),
+    days: days || null
+  });
+}
+
+function getSlaTrend(weeks) {
+  return callBackOfficeWebhook_('get_sla_trend', {
+    email: getActiveEmail_(),
+    weeks: weeks || null
+  });
+}
+
+function getCategoryDeltas(periodDays) {
+  return callBackOfficeWebhook_('get_category_deltas', {
+    email: getActiveEmail_(),
+    period_days: periodDays || null
+  });
+}
+
+function getCreationHeatmap() {
+  return callBackOfficeWebhook_('get_creation_heatmap', { email: getActiveEmail_() });
 }
 
 /* ==================== Admin actions ====================
