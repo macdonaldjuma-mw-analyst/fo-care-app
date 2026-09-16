@@ -1,5 +1,5 @@
 const db = require('../db');
-const { requireManager } = require('./manager');
+const { requireAnyRole } = require('./admin');
 
 const SCHEMA = '"FO_CARE_APP"';
 
@@ -12,9 +12,9 @@ function clampInt(value, fallback, min, max) {
 /**
  * Daily created / resolved counts plus end-of-day backlog (open workload:
  * created on or before that day, not yet closed by end of that day) — for
- * the ticket-volume trend chart. Same manager-wide scope as
+ * the ticket-volume trend chart. Same org-wide scope as
  * getDashboardSummary: no category restriction, gated only by
- * requireManager.
+ * requireAnyRole (any resolver/manager/admin/call center agent).
  *
  * Note: the backlog figure is a correlated subquery per day (scans the
  * tickets table once per day in the range). Fine at current volume; if
@@ -23,7 +23,7 @@ function clampInt(value, fallback, min, max) {
  * window function instead.
  */
 async function getTicketTrend(payload) {
-  await requireManager(payload.email);
+  await requireAnyRole(payload.email);
   const days = clampInt(payload.days, 30, 1, 180);
 
   const { rows } = await db.query(
@@ -73,7 +73,7 @@ async function getTicketTrend(payload) {
  * pct_on_time: null — the frontend should show a gap, not a misleading 0%.
  */
 async function getSlaTrend(payload) {
-  await requireManager(payload.email);
+  await requireAnyRole(payload.email);
   const weeks = clampInt(payload.weeks, 13, 1, 52);
 
   const { rows } = await db.query(
@@ -118,7 +118,7 @@ async function getSlaTrend(payload) {
  * starts, so nothing is double-counted or skipped between them.
  */
 async function getCategoryDeltas(payload) {
-  await requireManager(payload.email);
+  await requireAnyRole(payload.email);
   const periodDays = clampInt(payload.period_days, 30, 1, 90);
 
   const { rows } = await db.query(
@@ -158,7 +158,7 @@ async function getCategoryDeltas(payload) {
  * are filled in as 0 so the frontend always gets a full 7x24 grid.
  */
 async function getCreationHeatmap(payload) {
-  await requireManager(payload.email);
+  await requireAnyRole(payload.email);
 
   const { rows } = await db.query(
     `SELECT

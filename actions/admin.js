@@ -26,6 +26,32 @@ async function requireAdmin(callerEmail) {
   }
 }
 
+/**
+ * Opens an action to any recognized user of the app — resolver, manager,
+ * admin, or call center agent — rather than one specific role. Used for
+ * the dashboard summary/trend actions now that they're no longer
+ * manager-only. Mirrors requireAdmin/requireAgent/requireManager's shape
+ * exactly, just with a wider UNION.
+ */
+async function requireAnyRole(callerEmail) {
+  if (!callerEmail) {
+    throw new AuthorizationError('Not authorized.');
+  }
+  const { rows } = await db.query(
+    `SELECT email FROM ${SCHEMA}.resolvers WHERE email = $1 AND is_active = true
+     UNION
+     SELECT email FROM ${SCHEMA}.managers WHERE email = $1 AND is_active = true
+     UNION
+     SELECT email FROM ${SCHEMA}.admins WHERE email = $1 AND is_active = true
+     UNION
+     SELECT email FROM ${SCHEMA}.call_center_agents WHERE email = $1 AND is_active = true`,
+    [callerEmail]
+  );
+  if (rows.length === 0) {
+    throw new AuthorizationError('Not authorized.');
+  }
+}
+
 /* ==================== Managers ====================
  * NOTE: previously ungated in the n8n workflow (Switch1 routed straight to
  * these three Postgres nodes with no Admin_gate in front). Now gated per
@@ -151,6 +177,7 @@ async function adminUpdateAdmin(payload) {
 module.exports = {
   AuthorizationError,
   requireAdmin,
+  requireAnyRole,
   adminListManagers,
   adminAddManager,
   adminUpdateManager,

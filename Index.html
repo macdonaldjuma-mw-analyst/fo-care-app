@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FO Care — Back Office Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+  console.log("TAILWIND SCRIPT TAG REACHED");
+    </script> 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -646,9 +649,10 @@
         };
 
         document.addEventListener("DOMContentLoaded", () => {
-            loadLogo();
-            loadProfile();
-        });
+          console.log('[DEBUG]', new Date().toISOString(), 'DOMContentLoaded fired');
+          loadLogo();
+             loadProfile();
+            });
 
         // ---------- Logo & Profile ----------
         function loadLogo() {
@@ -663,40 +667,44 @@
         }
 
         function loadProfile() {
-            document.getElementById('splash-status').innerText = 'Checking your access...';
-            google.script.run
-                .withSuccessHandler((response) => {
-                    if (!response.success) {
-                        showFatalError("Couldn't verify your access: " + response.error);
-                        return;
-                    }
-                    const p = response.data;
+          console.log('[DEBUG]', new Date().toISOString(), 'loadProfile() called, invoking google.script.run.getUserProfile()');
+          document.getElementById('splash-status').innerText = 'Checking your access...';
 
+             const watchdog = setTimeout(() => {
+               console.error('[DEBUG]', new Date().toISOString(), 'getUserProfile() has NOT returned after 8s — likely blocked client-side (auth dialog, popup block, or network)');
+               document.getElementById('splash-status').innerText = 'Still checking access — taking longer than expected. Check console.';
+          }, 8000);
+
+             google.script.run
+              .withSuccessHandler((response) => {
+                clearTimeout(watchdog);
+                console.log('[DEBUG]', new Date().toISOString(), 'getUserProfile SUCCESS handler fired', response);
+               if (!response.success) {
+                showFatalError("Couldn't verify your access: " + response.error);
+                return;
+                  }
+            const p = response.data;
             if (!p.is_resolver && !p.is_manager && !p.is_admin && !p.is_call_center_agent) {
                 showFatalError("You don't currently have access to this tool. Contact your admin if this seems wrong.");
                 return;
             }
-
             AppState.profile = p;
             renderNav(p);
             populateCategoryFilterDropdown(p);
             document.getElementById('sidebar-user-name').innerText = p.name || p.email;
             document.getElementById('sidebar-user-email').innerText = p.email;
-
             document.getElementById('splash-screen').classList.add('opacity-0', 'pointer-events-none');
             document.getElementById('app-shell').classList.remove('hidden');
-
-            const defaultView = p.is_resolver
-                ? 'tickets'
-                : (p.is_manager
-                    ? 'dashboard'
-                    : (p.is_call_center_agent ? 'create-ticket' : 'admin'));
-
+            const defaultView = p.is_resolver ? 'tickets' : (p.is_manager ? 'dashboard' : (p.is_call_center_agent ? 'create-ticket' : 'admin'));
             switchView(defaultView);
         })
-        .withFailureHandler((err) => showFatalError("Couldn't verify your access: " + err.message))
+        .withFailureHandler((err) => {
+            clearTimeout(watchdog);
+            console.error('[DEBUG]', new Date().toISOString(), 'getUserProfile FAILURE handler fired', err);
+            showFatalError("Couldn't verify your access: " + err.message);
+        })
         .getUserProfile();
-        }
+}
 
         function populateCategoryFilterDropdown(p) {
             const select = document.getElementById('filter-category');
@@ -1052,6 +1060,12 @@
                         AppState.dashboard = response.data;
                         renderDashboardSummary();
                         renderCategoryBreakdown();
+                        // renderDashboardSummary() just rebuilt #crit-highlight-body from
+                        // scratch, wiping out anything renderSlaBreaches() wrote into it
+                        // earlier. If the SLA breach data already arrived (it's a separate,
+                        // parallel call below), re-apply it now so the two race conditions
+                        // — whichever call finishes first — both end up correct.
+                        if (AppState.slaBreaches) renderSlaBreaches();
                     } else {
                         showToast("Failed to load dashboard: " + response.error);
                     }
@@ -1117,8 +1131,9 @@
         }
 
         // ---------- SVG chart helpers ----------
+        console.log("SVG HELPER REACHED");
         function svgEl(tag, attrs) {
-            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            const el = document.createElementNS('http:\/\/www.w3.org/2000/svg', tag);
             for (const k in attrs) el.setAttribute(k, attrs[k]);
             return el;
         }
@@ -1373,11 +1388,21 @@
                 return;
             }
 
+            // Volume deltas (tickets created this period vs. prior period) come
+            // from a separate call and are matched in by category_label. They're
+            // a flow metric — distinct from the open-workload stock shown in the
+            // bar — so a category can show "open workload shrinking" alongside
+            // "volume trending up" at the same time; that's not a bug.
+            const deltaByLabel = {};
+            ((AppState.categoryDeltas && AppState.categoryDeltas.categories) || []).forEach(d => {
+                deltaByLabel[d.category_label] = d;
+            });
+
             data.forEach(c => { c._total = (Number(c.open)||0) + (Number(c.in_progress)||0) + (Number(c.resolved_pending)||0); });
             data.sort((a, b) => b._total - a._total);
             const grandTotal = data.reduce((sum, c) => sum + c._total, 0) || 1;
             const topShare = Math.round((data[0]._total / grandTotal) * 100);
-            if (subEl) subEl.innerText = `${data[0].category_label} is ${topShare}% of the open queue`;
+            if (subEl) subEl.innerText = `${data[0].category_label} is ${topShare}% of the open queue · arrows show 30-day volume trend`;
 
             const rows = data.map(c => {
                 const t = c._total || 1;
@@ -1390,6 +1415,28 @@
                     ? `<span class="badge crimson">${overdue} SLA</span>`
                     : (overdue > 0 ? `<span class="badge amber">${overdue} SLA</span>` : `<span class="badge slate">0</span>`);
                 const dotColor = critical > 0 ? 'var(--oaf-crimson)' : (overdue > 0 ? 'var(--oaf-binzari)' : 'var(--oaf-kakamega)');
+
+                const deltaEntry = deltaByLabel[c.category_label];
+                let deltaEl = `<div class="cat-delta flat">–</div>`;
+                if (deltaEntry) {
+                    const count = Number(deltaEntry.count) || 0;
+                    const prior = Number(deltaEntry.prior_count) || 0;
+                    if (prior === 0) {
+                        deltaEl = count > 0 ? `<div class="cat-delta up">New</div>` : `<div class="cat-delta flat">–</div>`;
+                    } else if (prior < 5) {
+                        // Percentages computed from a near-zero baseline (e.g. 1 -> 322)
+                        // are technically correct but statistically meaningless and just
+                        // confusing on screen (26300%). Show the plain jump instead.
+                        const diff = count - prior;
+                        deltaEl = diff === 0 ? `<div class="cat-delta flat">–</div>`
+                            : `<div class="cat-delta ${diff > 0 ? 'up' : 'down'}">${diff > 0 ? '▲' : '▼'} ${Math.abs(diff)}</div>`;
+                    } else {
+                        const pct = Math.round(((count - prior) / prior) * 100);
+                        if (pct === 0) deltaEl = `<div class="cat-delta flat">–</div>`;
+                        else deltaEl = `<div class="cat-delta ${pct > 0 ? 'up' : 'down'}">${pct > 0 ? '▲' : '▼'} ${Math.abs(pct)}%</div>`;
+                    }
+                }
+
                 return `
                     <div class="cat-row">
                         <div class="cat-name"><span class="dot" style="background:${dotColor};"></span>${c.category_label}</div>
@@ -1399,6 +1446,7 @@
                             <span style="width:${pendPct}%; background:var(--oaf-kakamega);"></span>
                         </div>
                         <div class="cat-total"><b>${c._total}</b> open</div>
+                        ${deltaEl}
                         <div class="num">${overdueEl}</div>
                     </div>`;
             }).join('');

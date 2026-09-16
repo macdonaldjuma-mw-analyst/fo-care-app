@@ -1,5 +1,5 @@
 const db = require('../db');
-const { AuthorizationError } = require('./admin');
+const { AuthorizationError, requireAnyRole } = require('./admin');
 
 const SCHEMA = '"FO_CARE_APP"';
 
@@ -17,7 +17,7 @@ async function requireManager(callerEmail) {
 }
 
 async function getDashboardSummary(payload) {
-  await requireManager(payload.email);
+  await requireAnyRole(payload.email);
 
   const { rows } = await db.query(
     `SELECT
@@ -69,7 +69,7 @@ async function getDashboardSummary(payload) {
 }
 
 async function getSlaBreaches(payload) {
-  await requireManager(payload.email);
+  await requireAnyRole(payload.email);
 
   const { rows } = await db.query(
     `SELECT
