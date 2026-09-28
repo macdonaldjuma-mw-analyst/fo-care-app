@@ -51,7 +51,7 @@ async function createFoTicket(payload) {
         NULLIF(TRIM($6), ''), NULLIF(TRIM($7), ''), NULLIF(TRIM($8), ''),
         $9::jsonb,
         now() + (c.sla_hours || ' hours')::interval,
-        'fo_app'
+        'core_program'
       FROM ${SCHEMA}.ticket_categories c WHERE c.id = $1
       RETURNING id, ticket_number, status_code, created_at`,
       [
