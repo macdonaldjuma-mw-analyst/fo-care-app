@@ -35,6 +35,8 @@ const SCHEMA = '"FO_CARE_APP"';
  */
 async function createFoTicket(payload) {
   const client = await db.pool.connect();
+  let ticket;
+
   try {
     await client.query('BEGIN');
 
@@ -70,7 +72,7 @@ async function createFoTicket(payload) {
       return { success: false, error: 'Failed to create ticket. Check that the category exists.' };
     }
 
-    const ticket = rows[0];
+    ticket = rows[0];
 
     if (payload.attachment_url) {
       await client.query(
@@ -81,24 +83,33 @@ async function createFoTicket(payload) {
     }
 
     await client.query('COMMIT');
-
-    await notifications.notifyNewTicket(ticket.id);
-
-    return {
-      success: true,
-      data: {
-        id: Number(ticket.id),
-        ticket_number: ticket.ticket_number,
-        status_code: ticket.status_code,
-        created_at: ticket.created_at,
-      },
-    };
   } catch (err) {
+    // Only DB statements above this point can land here — the ticket is
+    // NOT yet committed if we reach this catch, so a real ROLLBACK is
+    // always the correct thing to do.
     await client.query('ROLLBACK');
     throw err;
   } finally {
     client.release();
   }
+
+  // Deliberately OUTSIDE the transaction's try/catch/finally above: the
+  // ticket is already safely committed by this point, so nothing that
+  // happens here — a slow webhook, a thrown error, anything — can ever
+  // roll back or fail a ticket that already exists. (notifyNewTicket
+  // also swallows its own errors internally, so this is a second,
+  // independent layer of protection against the exact same class of bug.)
+  await notifications.notifyNewTicket(ticket.id);
+
+  return {
+    success: true,
+    data: {
+      id: Number(ticket.id),
+      ticket_number: ticket.ticket_number,
+      status_code: ticket.status_code,
+      created_at: ticket.created_at,
+    },
+  };
 }
 
 module.exports = { createFoTicket };
