@@ -6,6 +6,7 @@ const managerActions = require('./actions/manager');
 const adminConfigActions = require('./actions/adminConfig');
 const hotlineActions = require('./actions/hotline');
 const dashboardTrendActions = require('./actions/dashboardTrends');
+const foTicketActions = require('./actions/foTickets');
 
 const app = express();
 app.use(express.json());
@@ -56,6 +57,13 @@ const ACTION_HANDLERS = {
   search_fo_tickets: hotlineActions.searchFoTickets,
   create_hotline_ticket: hotlineActions.createHotlineTicket,
   get_farmer_account: hotlineActions.getFarmerAccount,
+
+  // FO-facing app actions — routed through this same /backoffice endpoint
+  // with an "fo_" prefix so they never collide with the hotline/back-office
+  // action names above (e.g. get_ticket_categories already exists here,
+  // gated for call-center agents/admins — the FO app's version of that
+  // same read has no such gate, hence the separate prefixed name).
+  fo_create_ticket: foTicketActions.createFoTicket,
 };
 
 app.post('/backoffice', async (req, res) => {
