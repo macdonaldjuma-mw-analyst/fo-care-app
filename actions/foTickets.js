@@ -112,4 +112,98 @@ async function createFoTicket(payload) {
   };
 }
 
-module.exports = { createFoTicket };
+/**
+ * Ported from n8n's fo_care_tickets webhook, action "get_my_tickets".
+ * Scope is fo_email + site_id together (not fo_email alone) — matches
+ * n8n's Edit Fields -> Get_FO_Tickets exactly. Both values are trusted as
+ * already re-derived server-side by the caller from the FO's authenticated
+ * session, same as createFoTicket above.
+ */
+async function getMyTickets(payload) {
+  const { rows } = await db.query(
+    `SELECT
+      t.id, t.ticket_number, c.label AS category_label, t.status_code,
+      s.label AS status_label, t.description, t.farmer_account, t.farmer_name,
+      t.sla_due_at, t.created_at, t.updated_at,
+      (t.sla_due_at IS NOT NULL AND now() > t.sla_due_at AND t.status_code IN ('OPEN', 'IN_PROGRESS', 'REOPENED')) AS is_overdue
+    FROM ${SCHEMA}.tickets t
+    JOIN ${SCHEMA}.ticket_categories c ON c.id = t.category_id
+    JOIN ${SCHEMA}.ticket_statuses s ON s.code = t.status_code
+    WHERE t.fo_email = $1 AND t.site_id = $2
+    ORDER BY t.created_at DESC`,
+    [payload.fo_email, payload.site_id]
+  );
+
+  return {
+    success: true,
+    data: rows.map((row) => ({
+      id: row.id != null ? Number(row.id) : null,
+      ticket_number: row.ticket_number ?? null,
+      category_label: row.category_label ?? null,
+      status_code: row.status_code ?? null,
+      status_label: row.status_label ?? null,
+      description: row.description ?? null,
+      farmer_account: row.farmer_account ?? null,
+      farmer_name: row.farmer_name ?? null,
+      sla_due_at: row.sla_due_at ?? null,
+      created_at: row.created_at ?? null,
+      updated_at: row.updated_at ?? null,
+      is_overdue: Boolean(row.is_overdue),
+    })),
+  };
+}
+
+/**
+ * Ported from n8n's fo_care_tickets webhook, action "get_ticket_comments".
+ * Ownership check is embedded in the JOIN (t.fo_email = $2), matching n8n
+ * exactly — an FO requesting a ticket_id that isn't theirs just gets an
+ * empty array back, never another FO's comments and never a distinct
+ * "not yours" error. Same pattern as tickets.js's addComment.
+ */
+async function getTicketComments(payload) {
+  const { rows } = await db.query(
+    `SELECT tc.author_role, tc.author_name, tc.comment_text, tc.created_at
+     FROM ${SCHEMA}.ticket_comments tc
+     JOIN ${SCHEMA}.tickets t ON t.id = tc.ticket_id
+     WHERE tc.ticket_id = $1 AND t.fo_email = $2
+     ORDER BY tc.created_at ASC`,
+    [payload.ticket_id, payload.fo_email]
+  );
+
+  return {
+    success: true,
+    data: rows.map((row) => ({
+      author_role: row.author_role ?? null,
+      author_name: row.author_name ?? null,
+      comment_text: row.comment_text ?? null,
+      created_at: row.created_at ?? null,
+    })),
+  };
+}
+
+/**
+ * Ported from n8n's fo_care_tickets webhook, action "lookup_account".
+ * Advisory only — GAS's lookupAccountNumber() already treats "not found"
+ * as a soft failure that never blocks ticket submission, so this just
+ * needs to return an honest empty/found result, same as n8n.
+ *
+ * FIXED during porting: n8n's version built this query by interpolating
+ * account_number directly into the SQL text via an expression
+ * (`={{ $json.body.payload.account_number }}`) rather than a parameterized
+ * query — a real SQL-injection hole, since the value comes straight from
+ * the FO app with no server-side validation. Parameterized here ($1),
+ * consistent with every other query in this codebase.
+ */
+async function lookupAccount(payload) {
+  const { rows } = await db.query(
+    `SELECT account_number, client_name, district, site_name, site_id, fo_email, group_name
+     FROM ${SCHEMA}.account_directory
+     WHERE account_number::text = $1::text
+     LIMIT 1`,
+    [payload.account_number]
+  );
+
+  return { success: true, data: rows };
+}
+
+module.exports = { createFoTicket, getMyTickets, getTicketComments, lookupAccount };

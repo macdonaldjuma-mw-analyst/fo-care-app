@@ -64,6 +64,9 @@ const ACTION_HANDLERS = {
   // gated for call-center agents/admins — the FO app's version of that
   // same read has no such gate, hence the separate prefixed name).
   fo_create_ticket: foTicketActions.createFoTicket,
+  fo_get_my_tickets: foTicketActions.getMyTickets,
+  fo_get_ticket_comments: foTicketActions.getTicketComments,
+  fo_lookup_account: foTicketActions.lookupAccount,
 };
 
 app.post('/backoffice', async (req, res) => {
